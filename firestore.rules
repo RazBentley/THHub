@@ -1,0 +1,111 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper: check if user is authenticated
+    function isAuth() {
+      return request.auth != null;
+    }
+
+    // Helper: check if user is the owner role
+    function isOwner() {
+      return isAuth() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'owner';
+    }
+
+    // Helper: check if user is accessing their own data
+    function isUser(uid) {
+      return isAuth() && request.auth.uid == uid;
+    }
+
+    // Users collection
+    match /users/{userId} {
+      allow read: if isUser(userId) || isOwner();
+      allow create: if isAuth() && request.auth.uid == userId;
+      allow update: if isUser(userId) || isOwner();
+      allow delete: if isOwner();
+
+      // Food log subcollection
+      match /foodLog/{date}/entries/{entryId} {
+        allow read, write: if isUser(userId) || isOwner();
+      }
+
+      // Subscription subcollection
+      match /subscription/{docId} {
+        allow read: if isUser(userId) || isOwner();
+        allow write: if isOwner();
+      }
+
+      // Settings subcollection (nutrition targets, etc.)
+      match /settings/{settingId} {
+        allow read: if isUser(userId) || isOwner();
+        allow write: if isOwner();
+      }
+
+      // Meal plan - owner sets, client reads
+      match /mealPlan/{planId} {
+        allow read: if isUser(userId) || isOwner();
+        allow write: if isOwner();
+      }
+
+      // Daily progress - client ticks off meals/water
+      match /dailyProgress/{date} {
+        allow read, write: if isUser(userId) || isOwner();
+      }
+
+      // Cardio & steps log
+      match /cardioLog/{date} {
+        allow read, write: if isUser(userId) || isOwner();
+      }
+
+      // Workout programme - owner sets, client reads
+      match /workoutProgramme/{progId} {
+        allow read: if isUser(userId) || isOwner();
+        allow write: if isOwner();
+      }
+
+      // Workout progress - client ticks off exercises
+      match /workoutProgress/{date} {
+        allow read, write: if isUser(userId) || isOwner();
+      }
+
+      // Goals
+      match /goals/{goalId} {
+        allow read: if isUser(userId) || isOwner();
+        allow write: if isUser(userId) || isOwner();
+      }
+
+      // Progress photos
+      match /progressPhotos/{date} {
+        allow read, write: if isUser(userId) || isOwner();
+      }
+
+      // Weekly check-ins - client submits, owner reads
+      match /checkIns/{weekId} {
+        allow read: if isUser(userId) || isOwner();
+        allow create, update: if isUser(userId);
+        allow write: if isOwner();
+      }
+    }
+
+    // Shared food database - all authenticated users can read and contribute
+    match /sharedFoods/{foodId} {
+      allow read: if isAuth();
+      allow create: if isAuth();
+      allow update, delete: if isOwner();
+    }
+
+    // Chats collection
+    match /chats/{chatId} {
+      allow read: if isAuth() && request.auth.uid in resource.data.participants;
+      allow create: if isAuth();
+      allow update: if isAuth() && request.auth.uid in resource.data.participants;
+
+      // Messages subcollection
+      match /messages/{messageId} {
+        allow read: if isAuth() && request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
+        allow create: if isAuth() && request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
+        allow update: if isAuth() && request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
+      }
+    }
+  }
+}

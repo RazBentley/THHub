@@ -39,3 +39,9 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# raw data files
+cofid_raw.xlsx
+
+# scripts output
+scripts/
