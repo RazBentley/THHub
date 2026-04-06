@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, Alert, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, router } from 'expo-router';
 import { collection, query, where, getDocs, doc, updateDoc, deleteDoc, getDoc } from 'firebase/firestore';
@@ -101,7 +101,7 @@ export default function ClientsScreen() {
         </View>
 
         {/* Filter tabs */}
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: spacing.sm }}>
+        <View style={{ flexDirection: 'row', marginBottom: spacing.sm, gap: spacing.xs }}>
           {([
             { key: 'all', label: `All (${clients.length})` },
             { key: 'active', label: `Active (${activeCount})` },
@@ -111,12 +111,12 @@ export default function ClientsScreen() {
             <TouchableOpacity
               key={tab.key}
               onPress={() => setFilter(tab.key)}
-              style={{ paddingHorizontal: spacing.md, paddingVertical: spacing.sm, borderRadius: borderRadius.full, backgroundColor: filter === tab.key ? colors.primary : colors.surface, marginRight: spacing.xs }}
+              style={{ paddingHorizontal: spacing.md, paddingVertical: spacing.sm, borderRadius: borderRadius.full, backgroundColor: filter === tab.key ? colors.primary : colors.surface }}
             >
               <Text style={{ color: filter === tab.key ? '#fff' : colors.textMuted, fontSize: fontSize.sm, fontWeight: '700' }}>{tab.label}</Text>
             </TouchableOpacity>
           ))}
-        </ScrollView>
+        </View>
 
         <Text style={styles.count}>{filteredClients.length} client{filteredClients.length !== 1 ? 's' : ''}</Text>
 
