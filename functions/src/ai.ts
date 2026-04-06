@@ -2,8 +2,8 @@ import * as functions from 'firebase-functions';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const getGemini = () => {
-  const apiKey = functions.config().gemini?.api_key;
-  if (!apiKey) throw new Error('Gemini API key not configured');
+  const apiKey = process.env.GEMINI_API_KEY || functions.config().gemini?.api_key;
+  if (!apiKey) throw new Error('Gemini API key not configured. Set GEMINI_API_KEY in functions/.env');
   return new GoogleGenerativeAI(apiKey);
 };
 
