@@ -9,7 +9,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { Audio } from 'expo-av';
 import {
   collection, query, orderBy, onSnapshot, addDoc, doc,
-  updateDoc, getDoc, deleteDoc,
+  updateDoc, getDoc, getDocs, deleteDoc,
 } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { useAuth } from '../../context/AuthContext';
@@ -44,8 +44,24 @@ export default function ChatScreen() {
     getDoc(doc(db, 'chats', id)).then((chatDoc) => {
       if (chatDoc.exists()) {
         setChatName(chatDoc.data().clientName || 'Chat');
+        // Clear unread count when opening chat
+        updateDoc(doc(db, 'chats', id), { unreadCount: 0 }).catch(() => {});
       }
     });
+
+    // Mark unread messages as read
+    const markRead = async () => {
+      try {
+        const msgsSnap = await getDocs(collection(db, 'chats', id, 'messages'));
+        msgsSnap.forEach((msgDoc) => {
+          const msg = msgDoc.data();
+          if (!msg.read && msg.senderId !== profile?.uid) {
+            updateDoc(doc(db, 'chats', id, 'messages', msgDoc.id), { read: true }).catch(() => {});
+          }
+        });
+      } catch { /* silent */ }
+    };
+    markRead();
 
     const messagesQuery = query(
       collection(db, 'chats', id, 'messages'),
