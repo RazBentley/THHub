@@ -8,6 +8,7 @@ import { useAuth } from '../../context/AuthContext';
 import { db } from '../../lib/firebase';
 import { GradientCard } from '../../components/ui/GradientCard';
 import { ProgressRing } from '../../components/ui/ProgressRing';
+import { InactiveGate } from '../../components/ui/InactiveGate';
 import { colors, spacing, fontSize, borderRadius, shadows, gradients } from '../../components/ui/theme';
 
 const DEFAULT_CALORIE_TARGET = 2200;
@@ -120,6 +121,7 @@ export default function DashboardScreen() {
   const calorieProgress = Math.min(todayCalories / calorieTarget, 1);
 
   return (
+    <InactiveGate>
     <ScrollView
       style={styles.container}
       contentContainerStyle={styles.content}
@@ -404,6 +406,7 @@ export default function DashboardScreen() {
         </>
       )}
     </ScrollView>
+    </InactiveGate>
   );
 }
 

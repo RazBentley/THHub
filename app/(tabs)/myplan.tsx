@@ -14,6 +14,7 @@ import { searchFoods, getNutritionPer100g } from '../../lib/openFoodFacts';
 import { OpenFoodFactsProduct } from '../../types';
 import { colors, spacing, fontSize, borderRadius, shadows } from '../../components/ui/theme';
 import { Button } from '../../components/ui/Button';
+import { InactiveGate } from '../../components/ui/InactiveGate';
 
 const WATER_INCREMENT = 0.5; // each tap = 0.5L
 
@@ -182,11 +183,13 @@ export default function MyPlanScreen() {
 
   if (loading) return <View style={styles.centered}><Text style={styles.loadingText}>Loading your plan...</Text></View>;
   if (!mealPlan) return (
-    <View style={styles.centered}>
-      <Ionicons name="restaurant-outline" size={64} color={colors.textMuted} />
-      <Text style={styles.emptyTitle}>No Meal Plan Yet</Text>
-      <Text style={styles.emptySubtext}>Your coach will set your personalised plan soon</Text>
-    </View>
+    <InactiveGate>
+      <View style={styles.centered}>
+        <Ionicons name="restaurant-outline" size={64} color={colors.textMuted} />
+        <Text style={styles.emptyTitle}>No Meal Plan Yet</Text>
+        <Text style={styles.emptySubtext}>Your coach will set your personalised plan soon</Text>
+      </View>
+    </InactiveGate>
   );
 
   const completedCount = (progress.mealsCompleted || []).filter(Boolean).length;
@@ -209,6 +212,7 @@ export default function MyPlanScreen() {
   const standaloneExtras = extras.filter(e => e.mealLabel === 'extra');
 
   return (
+    <InactiveGate>
     <ScrollView style={styles.container} contentContainerStyle={styles.content}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />}>
 
@@ -499,6 +503,7 @@ export default function MyPlanScreen() {
         </KeyboardAvoidingView>
       </Modal>
     </ScrollView>
+    </InactiveGate>
   );
 }
 

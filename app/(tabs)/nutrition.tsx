@@ -13,6 +13,7 @@ import { searchFoods, getNutritionPer100g, getProductByBarcode, saveToSharedData
 import { OpenFoodFactsProduct, FoodEntry } from '../../types';
 import { colors, spacing, fontSize, borderRadius, shadows } from '../../components/ui/theme';
 import { Button } from '../../components/ui/Button';
+import { InactiveGate } from '../../components/ui/InactiveGate';
 
 export default function NutritionScreen() {
   const { profile } = useAuth();
@@ -251,6 +252,7 @@ export default function NutritionScreen() {
     : { calories: 0, protein: 0, carbs: 0, fat: 0 };
 
   return (
+    <InactiveGate>
     <View style={styles.container}>
       {/* Daily Summary with Progress Bars */}
       <View style={[styles.summary, shadows.sm]}>
@@ -631,6 +633,7 @@ export default function NutritionScreen() {
         </TouchableWithoutFeedback>
       </Modal>
     </View>
+    </InactiveGate>
   );
 }
 
