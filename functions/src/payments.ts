@@ -7,7 +7,7 @@ const db = admin.firestore();
 // TODO: Set your Stripe secret key in Firebase config:
 // firebase functions:config:set stripe.secret_key="sk_test_..."
 const stripe = new Stripe(functions.config().stripe?.secret_key || '', {
-  apiVersion: '2024-12-18.acacia',
+  apiVersion: '2023-10-16' as any,
 });
 
 const PLAN_AMOUNT = 5000; // £50.00 in pence
@@ -19,7 +19,7 @@ const CURRENCY = 'gbp';
  */
 export const createPaymentIntent = functions.https.onCall(async (data, context) => {
   if (!context.auth) {
-    throw new functions.HttpsError('unauthenticated', 'Must be logged in');
+    throw new functions.https.HttpsError('unauthenticated', 'Must be logged in');
   }
 
   const uid = context.auth.uid;
@@ -30,7 +30,7 @@ export const createPaymentIntent = functions.https.onCall(async (data, context) 
     const userData = userDoc.data();
 
     if (!userData) {
-      throw new functions.HttpsError('not-found', 'User not found');
+      throw new functions.https.HttpsError('not-found', 'User not found');
     }
 
     let customerId: string;
@@ -61,7 +61,7 @@ export const createPaymentIntent = functions.https.onCall(async (data, context) 
     };
   } catch (error: any) {
     console.error('Payment intent creation failed:', error);
-    throw new functions.HttpsError('internal', error.message);
+    throw new functions.https.HttpsError('internal', error.message);
   }
 });
 

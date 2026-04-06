@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Stack, router } from 'expo-router';
+import { Stack, router, Redirect } from 'expo-router';
 import { doc, updateDoc } from 'firebase/firestore';
 import { useAuth } from '../context/AuthContext';
 import { db } from '../lib/firebase';
@@ -30,6 +30,11 @@ export default function OnboardingScreen() {
   const [healthConditions, setHealthConditions] = useState('');
   const [dietaryRequirements, setDietaryRequirements] = useState('');
   const [additionalNotes, setAdditionalNotes] = useState('');
+
+  // Redirect if already completed onboarding
+  if (profile?.onboarding?.completedAt) {
+    return <Redirect href="/(tabs)/dashboard" />;
+  }
 
   const handleSave = async () => {
     if (!profile) return;
