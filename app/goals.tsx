@@ -94,7 +94,7 @@ export default function GoalsScreen() {
 
   return (
     <>
-      <Stack.Screen options={{ headerShown: true, title: 'Goals', headerStyle: { backgroundColor: colors.secondary }, headerTintColor: colors.text }} />
+      <Stack.Screen options={{ headerBackTitle: ' ', headerShown: true, title: 'Goals', headerStyle: { backgroundColor: colors.secondary }, headerTintColor: colors.text }} />
       <ScrollView style={styles.container} contentContainerStyle={styles.content}>
 
         {!goal && !editing ? (

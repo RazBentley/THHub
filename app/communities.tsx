@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput,
-  FlatList, Modal, KeyboardAvoidingView, Platform, ActivityIndicator,
+  FlatList, Modal, KeyboardAvoidingView, Platform, ActivityIndicator, Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Stack } from 'expo-router';
+import { Stack, router } from 'expo-router';
 import {
-  collection, query, orderBy, onSnapshot, addDoc, updateDoc, doc,
+  collection, query, orderBy, onSnapshot, addDoc, updateDoc, deleteDoc, doc,
 } from 'firebase/firestore';
 import { useAuth } from '../context/AuthContext';
 import { db } from '../lib/firebase';
@@ -117,6 +117,25 @@ export default function CommunitiesScreen() {
       setCreateRestriction('none');
     } catch { /* silent */ }
     finally { setCreating(false); }
+  };
+
+  const deleteCommunity = (communityId: string, communityName: string) => {
+    Alert.alert(
+      'Delete Community',
+      `Are you sure you want to delete "${communityName}"? This cannot be undone.`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await deleteDoc(doc(db, 'communities', communityId));
+            } catch { /* silent */ }
+          },
+        },
+      ]
+    );
   };
 
   const formatTime = (ts: number) => {
@@ -239,10 +258,11 @@ export default function CommunitiesScreen() {
           title: 'Communities',
           headerStyle: { backgroundColor: colors.secondary },
           headerTintColor: colors.text,
+          headerBackTitle: ' ',
           headerRight: () => (
             <TouchableOpacity
-              style={styles.newGroupBtn}
               onPress={() => setShowCreate(true)}
+              style={{ marginRight: spacing.sm }}
             >
               <Ionicons name="add" size={20} color="#fff" />
             </TouchableOpacity>
@@ -309,6 +329,17 @@ export default function CommunitiesScreen() {
                     ) : null}
                     {!accessible && (
                       <Text style={styles.restrictedText}>Restricted</Text>
+                    )}
+                    {(isOwner || community.createdBy === profile?.uid) && (
+                      <TouchableOpacity
+                        onPress={(e) => {
+                          e.stopPropagation?.();
+                          deleteCommunity(community.id, community.name);
+                        }}
+                        style={{ marginTop: 4 }}
+                      >
+                        <Ionicons name="trash-outline" size={16} color={colors.error + '80'} />
+                      </TouchableOpacity>
                     )}
                   </View>
                 </TouchableOpacity>

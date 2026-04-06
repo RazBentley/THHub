@@ -70,7 +70,7 @@ export default function WorkoutIdeasScreen() {
 
   return (
     <>
-      <Stack.Screen options={{ headerShown: true, title: 'Workout Ideas', headerStyle: { backgroundColor: colors.secondary }, headerTintColor: colors.text }} />
+      <Stack.Screen options={{ headerBackTitle: ' ', headerShown: true, title: 'Workout Ideas', headerStyle: { backgroundColor: colors.secondary }, headerTintColor: colors.text }} />
       <ScrollView style={styles.container} contentContainerStyle={styles.content}>
 
         {/* Location toggle */}

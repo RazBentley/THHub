@@ -75,7 +75,7 @@ export default function CardioScreen() {
 
   return (
     <>
-      <Stack.Screen options={{ headerShown: true, title: 'Cardio & Steps', headerStyle: { backgroundColor: colors.secondary }, headerTintColor: colors.text }} />
+      <Stack.Screen options={{ headerBackTitle: ' ', headerShown: true, title: 'Cardio & Steps', headerStyle: { backgroundColor: colors.secondary }, headerTintColor: colors.text }} />
       <ScrollView style={styles.container} contentContainerStyle={styles.content}>
 
         {/* Weekly Summary */}

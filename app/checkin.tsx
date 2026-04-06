@@ -125,6 +125,7 @@ export default function CheckInScreen() {
     <>
       <Stack.Screen
         options={{
+          headerBackTitle: ' ',
           headerShown: true,
           title: 'Weekly Check-In',
           headerStyle: { backgroundColor: colors.secondary },

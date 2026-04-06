@@ -180,7 +180,7 @@ export default function ProgressPhotosScreen() {
 
   return (
     <>
-      <Stack.Screen options={{ headerShown: true, title: 'Progress Photos', headerStyle: { backgroundColor: colors.secondary }, headerTintColor: colors.text }} />
+      <Stack.Screen options={{ headerBackTitle: ' ', headerShown: true, title: 'Progress Photos', headerStyle: { backgroundColor: colors.secondary }, headerTintColor: colors.text }} />
       <ScrollView style={styles.container} contentContainerStyle={styles.content}>
 
         {/* Today's Photos */}

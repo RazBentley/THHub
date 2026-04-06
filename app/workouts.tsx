@@ -91,7 +91,7 @@ export default function WorkoutsScreen() {
   if (!programme) {
     return (
       <>
-        <Stack.Screen options={{ headerShown: true, title: 'Workouts', headerStyle: { backgroundColor: colors.secondary }, headerTintColor: colors.text }} />
+        <Stack.Screen options={{ headerBackTitle: ' ', headerShown: true, title: 'Workouts', headerStyle: { backgroundColor: colors.secondary }, headerTintColor: colors.text }} />
         <View style={styles.centered}>
           <Ionicons name="barbell-outline" size={64} color={colors.textMuted} />
           <Text style={styles.emptyTitle}>No Programme Yet</Text>
@@ -109,7 +109,7 @@ export default function WorkoutsScreen() {
 
   return (
     <>
-      <Stack.Screen options={{ headerShown: true, title: programme.name, headerStyle: { backgroundColor: colors.secondary }, headerTintColor: colors.text }} />
+      <Stack.Screen options={{ headerBackTitle: ' ', headerShown: true, title: programme.name, headerStyle: { backgroundColor: colors.secondary }, headerTintColor: colors.text }} />
       <ScrollView style={styles.container} contentContainerStyle={styles.content}>
 
         {/* Day Selector */}
