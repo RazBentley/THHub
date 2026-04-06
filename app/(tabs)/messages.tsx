@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, Modal, TextInput } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { collection, query, where, onSnapshot, orderBy, getDocs, addDoc } from 'firebase/firestore';
 import { useAuth } from '../../context/AuthContext';
 import { db } from '../../lib/firebase';
-import { Chat } from '../../types';
+import { Chat, UserProfile } from '../../types';
 import { colors, spacing, fontSize, borderRadius } from '../../components/ui/theme';
 
 export default function MessagesScreen() {
@@ -42,6 +42,42 @@ export default function MessagesScreen() {
 
     return unsubscribe;
   }, [profile]);
+
+  // Coach new chat state
+  const [showNewChat, setShowNewChat] = useState(false);
+  const [allClients, setAllClients] = useState<UserProfile[]>([]);
+  const [clientSearch, setClientSearch] = useState('');
+
+  const openNewChatModal = async () => {
+    setShowNewChat(true);
+    setClientSearch('');
+    try {
+      const snap = await getDocs(query(collection(db, 'users'), where('role', '==', 'client')));
+      setAllClients(snap.docs.map(d => d.data() as UserProfile).sort((a, b) => a.name.localeCompare(b.name)));
+    } catch { /* silent */ }
+  };
+
+  const startChatWithClient = async (client: UserProfile) => {
+    if (!profile) return;
+    // Check if chat already exists
+    const existing = chats.find(c => c.participants.includes(client.uid));
+    if (existing) {
+      setShowNewChat(false);
+      router.push(`/chat/${existing.id}`);
+      return;
+    }
+    try {
+      const newChat = await addDoc(collection(db, 'chats'), {
+        participants: [profile.uid, client.uid],
+        clientName: client.name,
+        lastMessage: '',
+        lastMessageTime: Date.now(),
+        unreadCount: 0,
+      });
+      setShowNewChat(false);
+      router.push(`/chat/${newChat.id}`);
+    } catch { /* silent */ }
+  };
 
   const autoCreateChat = async () => {
     if (!profile || isOwner) return;
@@ -163,12 +199,64 @@ export default function MessagesScreen() {
         />
       )}
 
-      {/* Show FAB for non-owner users who have no existing chats */}
+      {/* FAB for clients with no chats */}
       {!isOwner && chats.length === 0 && (
         <TouchableOpacity style={styles.fab} onPress={startNewChat} accessibilityLabel="New chat">
           <Ionicons name="chatbubble" size={24} color="#fff" />
         </TouchableOpacity>
       )}
+
+      {/* FAB for coach - new chat */}
+      {isOwner && (
+        <TouchableOpacity style={styles.fab} onPress={openNewChatModal} accessibilityLabel="New chat">
+          <Ionicons name="add" size={28} color="#fff" />
+        </TouchableOpacity>
+      )}
+
+      {/* Coach new chat modal */}
+      <Modal visible={showNewChat} animationType="slide" transparent>
+        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'flex-end' }}>
+          <View style={{ backgroundColor: colors.background, borderTopLeftRadius: borderRadius.lg, borderTopRightRadius: borderRadius.lg, padding: spacing.lg, maxHeight: '70%' }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.md }}>
+              <Text style={{ color: colors.text, fontSize: fontSize.lg, fontWeight: '700' }}>New Conversation</Text>
+              <TouchableOpacity onPress={() => setShowNewChat(false)}>
+                <Ionicons name="close" size={24} color={colors.textMuted} />
+              </TouchableOpacity>
+            </View>
+            <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: colors.surface, borderRadius: borderRadius.md, paddingHorizontal: spacing.md, marginBottom: spacing.md }}>
+              <Ionicons name="search" size={18} color={colors.textMuted} />
+              <TextInput
+                style={{ flex: 1, color: colors.text, paddingVertical: spacing.sm, paddingLeft: spacing.sm, fontSize: fontSize.sm }}
+                placeholder="Search clients..."
+                placeholderTextColor={colors.textMuted}
+                value={clientSearch}
+                onChangeText={setClientSearch}
+              />
+            </View>
+            <FlatList
+              data={allClients.filter(c => c.name.toLowerCase().includes(clientSearch.toLowerCase()))}
+              keyExtractor={item => item.uid}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={{ flexDirection: 'row', alignItems: 'center', padding: spacing.md, borderBottomWidth: 1, borderBottomColor: colors.border }}
+                  onPress={() => startChatWithClient(item)}
+                >
+                  <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: colors.primary + '30', justifyContent: 'center', alignItems: 'center', marginRight: spacing.md }}>
+                    <Text style={{ color: colors.primary, fontWeight: '700' }}>{item.name.charAt(0).toUpperCase()}</Text>
+                  </View>
+                  <View>
+                    <Text style={{ color: colors.text, fontWeight: '600', fontSize: fontSize.sm }}>{item.name}</Text>
+                    <Text style={{ color: colors.textMuted, fontSize: fontSize.xs }}>{item.email}</Text>
+                  </View>
+                </TouchableOpacity>
+              )}
+              ListEmptyComponent={
+                <Text style={{ color: colors.textMuted, textAlign: 'center', padding: spacing.xl }}>No clients found.</Text>
+              }
+            />
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
