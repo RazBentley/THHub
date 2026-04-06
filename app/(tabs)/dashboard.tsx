@@ -379,6 +379,40 @@ export default function DashboardScreen() {
             <Text style={styles.actionSubtext}>Track progress</Text>
           </LinearGradient>
         </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.actionCard, shadows.sm]}
+          onPress={() => router.push('/communities')}
+          activeOpacity={0.7}
+        >
+          <LinearGradient
+            colors={[colors.primary + '20', colors.accent + '10']}
+            style={styles.actionGradient}
+          >
+            <View style={styles.actionIconWrap}>
+              <Ionicons name="people" size={26} color={colors.primary} />
+            </View>
+            <Text style={styles.actionText}>Communities</Text>
+            <Text style={styles.actionSubtext}>Group chats</Text>
+          </LinearGradient>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.actionCard, shadows.sm]}
+          onPress={() => router.push('/workout-ideas')}
+          activeOpacity={0.7}
+        >
+          <LinearGradient
+            colors={[colors.warning + '20', colors.accent + '10']}
+            style={styles.actionGradient}
+          >
+            <View style={styles.actionIconWrap}>
+              <Ionicons name="sparkles" size={26} color={colors.warning} />
+            </View>
+            <Text style={styles.actionText}>Workout Ideas</Text>
+            <Text style={styles.actionSubtext}>Browse workouts</Text>
+          </LinearGradient>
+        </TouchableOpacity>
       </View>
 
       {isOwner && (
