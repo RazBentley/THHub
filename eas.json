@@ -15,7 +15,7 @@
     },
     "production": {
       "ios": {
-        "image": "macos-ventura-13.6-xcode-15.2"
+        "image": "macos-sonoma-14.5-xcode-15.4"
       },
       "env": {
         "NO_FLIPPER": "1"
