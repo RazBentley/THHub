@@ -1,5 +1,16 @@
 export type UserRole = 'owner' | 'client';
 
+export interface OnboardingInfo {
+  mainGoal?: string;
+  motivation?: string;
+  experience?: string;
+  trainingDays?: string;
+  healthConditions?: string;
+  dietaryRequirements?: string;
+  additionalNotes?: string;
+  completedAt?: number;
+}
+
 export interface UserProfile {
   uid: string;
   email: string;
@@ -9,6 +20,7 @@ export interface UserProfile {
   fcmToken?: string;
   createdAt: number;
   photoURL?: string;
+  onboarding?: OnboardingInfo;
 }
 
 export interface Subscription {

@@ -43,7 +43,7 @@ export default function RegisterScreen() {
     setLoading(true);
     try {
       await signUp(email, password, name, role);
-      router.replace('/(tabs)/dashboard');
+      router.replace(role === 'client' ? '/onboarding' : '/(tabs)/dashboard');
     } catch (err: any) {
       setError(err.message || 'Failed to create account');
     } finally {
