@@ -24,7 +24,7 @@ export const lookupFoodNutrition = functions.https.onCall(async (data, context) 
 
   try {
     const genAI = getGemini();
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
     const prompt = `You are a nutrition database. Given a food or drink item, return ONLY a JSON object with estimated nutritional information. No markdown, no explanation, just the JSON.
 
@@ -88,7 +88,7 @@ export const suggestWorkout = functions.https.onCall(async (data, context) => {
 
   try {
     const genAI = getGemini();
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
     const prompt = `You are a personal training assistant. Generate a workout based on the user's request. Return ONLY a JSON object, no markdown, no explanation.
 
