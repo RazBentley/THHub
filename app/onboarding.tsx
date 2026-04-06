@@ -17,12 +17,18 @@ const EXPERIENCE = [
   { value: 'advanced', label: 'Advanced', desc: 'Experienced lifter looking to level up' },
 ];
 const DAYS = ['2 days', '3 days', '4 days', '5 days', '6+ days'];
+const GENDERS = [
+  { value: 'male', label: 'Male', icon: 'man-outline' as const },
+  { value: 'female', label: 'Female', icon: 'woman-outline' as const },
+  { value: 'prefer-not-to-say', label: 'Prefer not to say', icon: 'person-outline' as const },
+];
 
 export default function OnboardingScreen() {
   const { profile } = useAuth();
   const [step, setStep] = useState(0);
   const [saving, setSaving] = useState(false);
 
+  const [gender, setGender] = useState('');
   const [mainGoal, setMainGoal] = useState('');
   const [motivation, setMotivation] = useState('');
   const [experience, setExperience] = useState('');
@@ -50,7 +56,9 @@ export default function OnboardingScreen() {
         additionalNotes: additionalNotes || undefined,
         completedAt: Date.now(),
       };
-      await updateDoc(doc(db, 'users', profile.uid), { onboarding });
+      const updates: Record<string, any> = { onboarding };
+      if (gender) updates.gender = gender;
+      await updateDoc(doc(db, 'users', profile.uid), updates);
       router.replace('/(tabs)/dashboard');
     } catch { /* silent */ }
     finally { setSaving(false); }
@@ -72,7 +80,8 @@ export default function OnboardingScreen() {
     </TouchableOpacity>
   );
 
-  const totalSteps = 7;
+  const totalSteps = 8; // Welcome(0), Gender(1), Goal(2), Motivation(3), Experience(4), Days(5), Health(6), Notes(7)
+  const lastStep = totalSteps - 1;
 
   return (
     <>
@@ -83,9 +92,9 @@ export default function OnboardingScreen() {
         {step > 0 && (
           <View style={styles.progressRow}>
             <View style={styles.progressBg}>
-              <View style={[styles.progressFill, { width: `${(step / (totalSteps - 1)) * 100}%` }]} />
+              <View style={[styles.progressFill, { width: `${(step / lastStep) * 100}%` }]} />
             </View>
-            <Text style={styles.progressText}>{step}/{totalSteps - 1}</Text>
+            <Text style={styles.progressText}>{step}/{lastStep}</Text>
           </View>
         )}
 
@@ -103,8 +112,38 @@ export default function OnboardingScreen() {
           </View>
         )}
 
-        {/* Step 1: Goal */}
+        {/* Step 1: Gender */}
         {step === 1 && (
+          <View>
+            <View style={styles.stepIconRow}>
+              <View style={styles.stepIconCircle}>
+                <Ionicons name="person" size={24} color={colors.primary} />
+              </View>
+            </View>
+            <Text style={styles.stepTitle}>About You</Text>
+            <Text style={styles.stepSubtext}>
+              This helps us personalise your experience and give you access to the right community groups.
+            </Text>
+            <View style={styles.genderOptions}>
+              {GENDERS.map((g) => (
+                <TouchableOpacity
+                  key={g.value}
+                  style={[styles.genderCard, gender === g.value && styles.genderCardSelected]}
+                  onPress={() => setGender(g.value)}
+                  activeOpacity={0.7}
+                >
+                  <View style={[styles.genderIconCircle, gender === g.value && styles.genderIconCircleSelected]}>
+                    <Ionicons name={g.icon} size={28} color={gender === g.value ? colors.primary : colors.textMuted} />
+                  </View>
+                  <Text style={[styles.genderLabel, gender === g.value && { color: colors.primary }]}>{g.label}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+        )}
+
+        {/* Step 2: Goal */}
+        {step === 2 && (
           <View>
             <Text style={styles.stepTitle}>What's your main goal?</Text>
             <View style={styles.chipGrid}>
@@ -113,8 +152,8 @@ export default function OnboardingScreen() {
           </View>
         )}
 
-        {/* Step 2: Motivation */}
-        {step === 2 && (
+        {/* Step 3: Motivation */}
+        {step === 3 && (
           <View>
             <Text style={styles.stepTitle}>What's driving you to make a change?</Text>
             <Text style={styles.stepSubtext}>Understanding your "why" helps Tom keep you motivated.</Text>
@@ -124,8 +163,8 @@ export default function OnboardingScreen() {
           </View>
         )}
 
-        {/* Step 3: Experience */}
-        {step === 3 && (
+        {/* Step 4: Experience */}
+        {step === 4 && (
           <View>
             <Text style={styles.stepTitle}>What's your training experience?</Text>
             {EXPERIENCE.map(e => (
@@ -142,8 +181,8 @@ export default function OnboardingScreen() {
           </View>
         )}
 
-        {/* Step 4: Training days */}
-        {step === 4 && (
+        {/* Step 5: Training days */}
+        {step === 5 && (
           <View>
             <Text style={styles.stepTitle}>How many days a week can you train?</Text>
             <View style={styles.chipRow}>
@@ -152,8 +191,8 @@ export default function OnboardingScreen() {
           </View>
         )}
 
-        {/* Step 5: Health & diet */}
-        {step === 5 && (
+        {/* Step 6: Health & diet */}
+        {step === 6 && (
           <View>
             <Text style={styles.stepTitle}>Any injuries or health conditions?</Text>
             <Text style={styles.stepSubtext}>This helps Tom programme safely around any limitations.</Text>
@@ -177,8 +216,8 @@ export default function OnboardingScreen() {
           </View>
         )}
 
-        {/* Step 6: Anything else */}
-        {step === 6 && (
+        {/* Step 7: Anything else */}
+        {step === 7 && (
           <View>
             <Text style={styles.stepTitle}>Anything else you'd like Tom to know?</Text>
             <Text style={styles.stepSubtext}>Your schedule, preferences, past coaching experience — anything useful.</Text>
@@ -213,18 +252,18 @@ export default function OnboardingScreen() {
                 <Text style={styles.backText}>Back</Text>
               </TouchableOpacity>
               <View style={{ flexDirection: 'row', gap: spacing.md }}>
-                <TouchableOpacity onPress={() => step === 6 ? handleSave() : setStep(step + 1)}>
+                <TouchableOpacity onPress={() => step === lastStep ? handleSave() : setStep(step + 1)}>
                   <Text style={styles.skipText}>Skip</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.primaryBtn}
-                  onPress={() => step === 6 ? handleSave() : setStep(step + 1)}
+                  onPress={() => step === lastStep ? handleSave() : setStep(step + 1)}
                   disabled={saving}
                   activeOpacity={0.8}
                 >
                   <LinearGradient colors={[colors.primary, colors.primaryDark]} style={styles.primaryBtnGradient}>
-                    <Text style={styles.primaryBtnText}>{step === 6 ? (saving ? 'Saving...' : 'Finish') : 'Next'}</Text>
-                    {step < 6 && <Ionicons name="arrow-forward" size={16} color="#fff" />}
+                    <Text style={styles.primaryBtnText}>{step === lastStep ? (saving ? 'Saving...' : 'Finish') : 'Next'}</Text>
+                    {step < lastStep && <Ionicons name="arrow-forward" size={16} color="#fff" />}
                   </LinearGradient>
                 </TouchableOpacity>
               </View>
@@ -254,6 +293,49 @@ const styles = StyleSheet.create({
 
   stepTitle: { color: colors.text, fontSize: fontSize.lg, fontWeight: '700', marginBottom: spacing.sm },
   stepSubtext: { color: colors.textMuted, fontSize: fontSize.sm, marginBottom: spacing.md },
+
+  stepIconRow: { alignItems: 'center', marginBottom: spacing.md },
+  stepIconCircle: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: colors.primary + '15',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  // Gender step styles
+  genderOptions: { gap: spacing.sm },
+  genderCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.md,
+    padding: spacing.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    gap: spacing.md,
+  },
+  genderCardSelected: {
+    borderColor: colors.primary,
+    backgroundColor: colors.primary + '10',
+  },
+  genderIconCircle: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: colors.surfaceLight,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  genderIconCircleSelected: {
+    backgroundColor: colors.primary + '20',
+  },
+  genderLabel: {
+    color: colors.text,
+    fontSize: fontSize.md,
+    fontWeight: '600',
+  },
 
   chipGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
   chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },

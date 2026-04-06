@@ -12,6 +12,8 @@ import { db } from '../../lib/firebase';
 import { MealPlan, DailyProgress, ExtraFoodItem } from '../../types';
 import { searchFoods, getNutritionPer100g } from '../../lib/openFoodFacts';
 import { OpenFoodFactsProduct } from '../../types';
+import { searchFood, FoodItem } from '../../lib/foodDatabase';
+import { lookupFoodWithAI } from '../../lib/ai';
 import { colors, spacing, fontSize, borderRadius, shadows } from '../../components/ui/theme';
 import { Button } from '../../components/ui/Button';
 import { InactiveGate } from '../../components/ui/InactiveGate';
@@ -40,7 +42,49 @@ export default function MyPlanScreen() {
   const [manualProtein, setManualProtein] = useState('');
   const [manualCarbs, setManualCarbs] = useState('');
   const [manualFat, setManualFat] = useState('');
-  const [manualGrams, setManualGrams] = useState('100');
+  const [manualGrams, setManualGrams] = useState('');
+  const [foodResults, setFoodResults] = useState<FoodItem[]>([]);
+  const [showFoodResults, setShowFoodResults] = useState(false);
+  const [findLoading, setFindLoading] = useState(false);
+  const [autoFilled, setAutoFilled] = useState(false);
+
+  const findFood = async () => {
+    if (!manualName.trim()) return;
+    const localResults = searchFood(manualName.trim());
+    if (localResults.length > 0) {
+      setFoodResults(localResults);
+      setShowFoodResults(true);
+      return;
+    }
+    // AI fallback
+    setFindLoading(true);
+    setAutoFilled(false);
+    try {
+      const portion = manualGrams || 'standard serving';
+      const result = await lookupFoodWithAI(manualName.trim(), portion);
+      if (result) {
+        setManualName(result.name);
+        setManualCal(String(result.calories));
+        setManualProtein(String(result.protein));
+        setManualCarbs(String(result.carbs));
+        setManualFat(String(result.fat));
+        setManualGrams(result.servingSize.replace(/[^0-9.]/g, '') || '');
+        setAutoFilled(true);
+      }
+    } catch { /* silent */ }
+    finally { setFindLoading(false); }
+  };
+
+  const selectFoodResult = (food: FoodItem) => {
+    setManualName(food.name);
+    setManualCal(String(food.calories));
+    setManualProtein(String(food.protein));
+    setManualCarbs(String(food.carbs));
+    setManualFat(String(food.fat));
+    setManualGrams(food.servingSize);
+    setShowFoodResults(false);
+    setAutoFilled(false);
+  };
 
   const dateStr = selectedDate.toISOString().split('T')[0];
   const isToday = dateStr === new Date().toISOString().split('T')[0];
@@ -159,16 +203,14 @@ export default function MyPlanScreen() {
 
   const addManualExtra = () => {
     if (!manualName.trim()) { Alert.alert('Error', 'Enter a food name'); return; }
-    const grams = parseFloat(manualGrams) || 100;
-    const multiplier = grams / 100;
     const extra: ExtraFoodItem = {
       id: `extra-${Date.now()}`,
       name: manualName.trim(),
-      calories: Math.round((parseFloat(manualCal) || 0) * multiplier),
-      protein: Math.round((parseFloat(manualProtein) || 0) * multiplier * 10) / 10,
-      carbs: Math.round((parseFloat(manualCarbs) || 0) * multiplier * 10) / 10,
-      fat: Math.round((parseFloat(manualFat) || 0) * multiplier * 10) / 10,
-      servingSize: `${grams}g`,
+      calories: Math.round(parseFloat(manualCal) || 0),
+      protein: Math.round((parseFloat(manualProtein) || 0) * 10) / 10,
+      carbs: Math.round((parseFloat(manualCarbs) || 0) * 10) / 10,
+      fat: Math.round((parseFloat(manualFat) || 0) * 10) / 10,
+      servingSize: manualGrams?.trim() || '1 serving',
       mealLabel: extraForMeal,
     };
     saveProgress({ ...progress, extras: [...(progress.extras || []), extra] });
@@ -475,14 +517,71 @@ export default function MyPlanScreen() {
         </KeyboardAvoidingView>
       </Modal>
 
-      {/* ===== MANUAL ENTRY MODAL ===== */}
-      <Modal visible={showManual} transparent animationType="fade" onRequestClose={() => setShowManual(false)}>
+      {/* ===== ADD EXTRA MODAL ===== */}
+      <Modal visible={showManual} transparent animationType="fade" onRequestClose={() => { setShowManual(false); setShowFoodResults(false); }}>
         <KeyboardAvoidingView style={styles.modalOverlay} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+          <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Manual Entry</Text>
-            <Text style={styles.modalSubtext}>Enter per 100g values from the label</Text>
-            <TextInput style={styles.manualInput} value={manualName} onChangeText={setManualName}
-              placeholder="Food name" placeholderTextColor={colors.textMuted} />
+            <Text style={styles.modalTitle}>Add Extra</Text>
+
+            {/* Food name + Find button */}
+            <Text style={styles.manualLabel}>What did you have?</Text>
+            <View style={{ flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.xs }}>
+              <TextInput style={[styles.manualInput, { flex: 1, marginBottom: 0 }]} value={manualName}
+                onChangeText={(v) => { setManualName(v); setAutoFilled(false); setShowFoodResults(false); }}
+                placeholder="e.g. Costa latte, protein bar" placeholderTextColor={colors.textMuted} />
+              <TouchableOpacity
+                style={{ backgroundColor: colors.accent, borderRadius: borderRadius.sm, paddingHorizontal: spacing.md, justifyContent: 'center', opacity: findLoading || !manualName.trim() ? 0.5 : 1 }}
+                onPress={findFood}
+                disabled={findLoading || !manualName.trim()}
+              >
+                <Text style={{ color: '#fff', fontWeight: '700', fontSize: fontSize.sm }}>{findLoading ? '...' : 'Find'}</Text>
+              </TouchableOpacity>
+            </View>
+            {autoFilled && <Text style={{ color: colors.accent, fontSize: fontSize.xs, marginBottom: spacing.sm }}>Nutrition auto-filled — check values look right</Text>}
+
+            {/* Food search results */}
+            {showFoodResults && foodResults.length > 0 && (
+              <View style={{ maxHeight: 200, borderRadius: borderRadius.sm, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface, marginBottom: spacing.sm }}>
+                <ScrollView nestedScrollEnabled>
+                  {foodResults.map((food, i) => (
+                    <TouchableOpacity
+                      key={i}
+                      style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: spacing.sm, borderBottomWidth: i < foodResults.length - 1 ? 1 : 0, borderBottomColor: colors.border }}
+                      onPress={() => selectFoodResult(food)}
+                    >
+                      <View style={{ flex: 1 }}>
+                        <Text style={{ color: colors.text, fontSize: fontSize.sm, fontWeight: '600' }}>{food.name}</Text>
+                        <Text style={{ color: colors.textMuted, fontSize: fontSize.xs }}>{food.brand ? `${food.brand} · ` : ''}{food.servingSize}</Text>
+                      </View>
+                      <View style={{ alignItems: 'flex-end' }}>
+                        <Text style={{ color: colors.accent, fontSize: fontSize.xs, fontWeight: '700' }}>{food.calories}kcal</Text>
+                        <Text style={{ color: colors.textMuted, fontSize: fontSize.xs }}>P:{food.protein}g</Text>
+                      </View>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              </View>
+            )}
+
+            {/* Portion size */}
+            <Text style={styles.manualLabel}>Portion Size</Text>
+            <View style={{ flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.sm }}>
+              {['Small', 'Medium', 'Large'].map((size) => (
+                <TouchableOpacity
+                  key={size}
+                  style={{ flex: 1, paddingVertical: spacing.sm, borderRadius: borderRadius.sm, backgroundColor: manualGrams === size.toLowerCase() ? colors.primary : colors.surfaceLight, alignItems: 'center' }}
+                  onPress={() => setManualGrams(size.toLowerCase())}
+                >
+                  <Text style={{ color: manualGrams === size.toLowerCase() ? '#fff' : colors.textMuted, fontSize: fontSize.sm, fontWeight: '700' }}>{size}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+            <TextInput style={styles.manualNumInput} value={manualGrams} onChangeText={setManualGrams}
+              placeholder="Or enter g/ml" placeholderTextColor={colors.textMuted} />
+            <Text style={{ color: colors.textMuted, fontSize: fontSize.xs, marginBottom: spacing.md }}>Don't know the weight? Pick a size or leave blank.</Text>
+
+            {/* Macros */}
             <View style={styles.manualGrid}>
               <View style={styles.manualGridItem}><Text style={styles.manualLabel}>Calories</Text>
                 <TextInput style={styles.manualNumInput} value={manualCal} onChangeText={setManualCal} keyboardType="numeric" placeholder="0" placeholderTextColor={colors.textMuted} /></View>
@@ -493,13 +592,12 @@ export default function MyPlanScreen() {
               <View style={styles.manualGridItem}><Text style={styles.manualLabel}>Fat (g)</Text>
                 <TextInput style={styles.manualNumInput} value={manualFat} onChangeText={setManualFat} keyboardType="numeric" placeholder="0" placeholderTextColor={colors.textMuted} /></View>
             </View>
-            <Text style={styles.manualLabel}>How many grams?</Text>
-            <TextInput style={styles.manualNumInput} value={manualGrams} onChangeText={setManualGrams} keyboardType="numeric" />
             <View style={styles.modalButtons}>
-              <TouchableOpacity style={styles.cancelBtn} onPress={() => setShowManual(false)}><Text style={styles.cancelBtnText}>Cancel</Text></TouchableOpacity>
+              <TouchableOpacity style={styles.cancelBtn} onPress={() => { setShowManual(false); setShowFoodResults(false); }}><Text style={styles.cancelBtnText}>Cancel</Text></TouchableOpacity>
               <TouchableOpacity style={styles.confirmBtn} onPress={addManualExtra}><Text style={styles.confirmBtnText}>Add</Text></TouchableOpacity>
             </View>
           </View>
+          </ScrollView>
         </KeyboardAvoidingView>
       </Modal>
     </ScrollView>

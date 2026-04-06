@@ -15,7 +15,10 @@
     },
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.thtraining.thhub"
+      "bundleIdentifier": "com.thtraining.thhub",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -31,6 +34,13 @@
     },
     "plugins": [
       "expo-router"
-    ]
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "9ef9d7b8-1526-495f-9e26-ca1fa0892789"
+      }
+    },
+    "owner": "razbentley"
   }
 }
