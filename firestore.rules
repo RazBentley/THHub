@@ -94,6 +94,18 @@ service cloud.firestore {
       allow update, delete: if isOwner();
     }
 
+    // Communities collection
+    match /communities/{communityId} {
+      allow read: if isAuth();
+      allow create: if isAuth();
+      allow update: if isAuth();
+
+      match /messages/{messageId} {
+        allow read: if isAuth();
+        allow create: if isAuth();
+      }
+    }
+
     // Chats collection
     match /chats/{chatId} {
       allow read: if isAuth() && request.auth.uid in resource.data.participants;

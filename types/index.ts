@@ -1,4 +1,5 @@
 export type UserRole = 'owner' | 'client';
+export type Gender = 'male' | 'female' | 'prefer-not-to-say';
 
 export interface OnboardingInfo {
   mainGoal?: string;
@@ -20,7 +21,30 @@ export interface UserProfile {
   fcmToken?: string;
   createdAt: number;
   photoURL?: string;
+  gender?: Gender;
   onboarding?: OnboardingInfo;
+}
+
+export interface Community {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  createdBy: string;
+  createdAt: number;
+  memberCount: number;
+  restriction?: 'female-only' | 'male-only' | 'none';
+  lastMessage?: string;
+  lastMessageTime?: number;
+}
+
+export interface CommunityMessage {
+  id: string;
+  senderId: string;
+  senderName: string;
+  senderPhotoURL?: string;
+  text: string;
+  timestamp: number;
 }
 
 export interface Subscription {
