@@ -30,12 +30,17 @@ export const WORKOUT_CATEGORIES = [
   "Shoulders",
   "Arms",
   "Glutes",
+  "Cardio",
+  "Stretching",
+  "Functional",
 ] as const;
 
 export const workoutLibrary: LibraryWorkout[] = [
-  // ============ GYM WORKOUTS ============
+  // ============================================================
+  // GYM WORKOUTS
+  // ============================================================
 
-  // PUSH
+  // ──────────── PUSH (Gym) ────────────
   {
     id: "gym-push-beginner",
     name: "Beginner Push Day",
@@ -94,7 +99,7 @@ export const workoutLibrary: LibraryWorkout[] = [
     tips: ["Ensure adequate warm-up before heavy bench", "Use a spotter for heavy sets", "Rest-pause on final sets for extra intensity"],
   },
 
-  // PULL
+  // ──────────── PULL (Gym) ────────────
   {
     id: "gym-pull-beginner",
     name: "Beginner Pull Day",
@@ -132,8 +137,28 @@ export const workoutLibrary: LibraryWorkout[] = [
     ],
     tips: ["Initiate all back movements by retracting your shoulder blades", "Full range of motion on pull-ups", "Vary your grip width across sessions"],
   },
+  {
+    id: "gym-pull-advanced",
+    name: "Advanced Pull Day",
+    location: "gym",
+    category: "Pull",
+    difficulty: "advanced",
+    duration: "65",
+    description: "High-volume back and bicep session with heavy compounds and advanced techniques.",
+    exercises: [
+      { name: "Weighted Pull-Ups", sets: 4, reps: "6-8", restSeconds: 120, notes: "Use a dip belt or hold a dumbbell between feet" },
+      { name: "Barbell Rows (Pendlay)", sets: 4, reps: "5-7", restSeconds: 120, notes: "Full dead stop each rep from the floor" },
+      { name: "Chest Supported T-Bar Row", sets: 3, reps: "8-10", restSeconds: 90, notes: "Focus on squeezing the mid-back" },
+      { name: "Meadows Rows", sets: 3, reps: "10-12 each", restSeconds: 60, notes: "Landmine row with staggered stance" },
+      { name: "Straight Arm Pulldowns", sets: 3, reps: "12-15", restSeconds: 45, notes: "Slight lean forward, squeeze lats hard" },
+      { name: "Preacher Curls", sets: 3, reps: "8-10", restSeconds: 60, notes: "Slow 3-second negative" },
+      { name: "Spider Curls", sets: 3, reps: "10-12", restSeconds: 45, notes: "Chest against incline bench, no swing" },
+      { name: "Reverse Curls", sets: 3, reps: "12-15", restSeconds: 45, notes: "Targets brachioradialis and forearms" },
+    ],
+    tips: ["Warm up rotator cuffs with band pull-aparts before heavy pulling", "Use straps on heavy rows if grip fails before back does", "Alternate overhand and underhand grips week to week for variety"],
+  },
 
-  // LEGS
+  // ──────────── LEGS (Gym) ────────────
   {
     id: "gym-legs-beginner",
     name: "Beginner Leg Day",
@@ -171,8 +196,27 @@ export const workoutLibrary: LibraryWorkout[] = [
     ],
     tips: ["Brace your core throughout squats", "Drive through your heels on squats and leg press", "Stretch hamstrings and quads after the session"],
   },
+  {
+    id: "gym-legs-advanced",
+    name: "Advanced Leg Day",
+    location: "gym",
+    category: "Legs",
+    difficulty: "advanced",
+    duration: "75",
+    description: "Brutal high-volume leg session for experienced lifters ready to push limits.",
+    exercises: [
+      { name: "Barbell Back Squats", sets: 5, reps: "4-6", restSeconds: 180, notes: "Heavy working sets — belt recommended" },
+      { name: "Front Squats", sets: 4, reps: "6-8", restSeconds: 120, notes: "Cross-arm or clean grip, stay upright" },
+      { name: "Barbell Romanian Deadlifts", sets: 4, reps: "8-10", restSeconds: 90, notes: "Stretch hamstrings, hinge at hips" },
+      { name: "Walking Lunges (Barbell)", sets: 3, reps: "12 each leg", restSeconds: 90, notes: "Bar on back, long strides for glutes" },
+      { name: "Hack Squat Machine", sets: 3, reps: "10-12", restSeconds: 60, notes: "Deep range of motion, slow eccentric" },
+      { name: "Nordic Hamstring Curls", sets: 3, reps: "6-8", restSeconds: 60, notes: "Controlled negative, push up from floor if needed" },
+      { name: "Seated Calf Raises", sets: 4, reps: "15-20", restSeconds: 30, notes: "3-second hold at the top each rep" },
+    ],
+    tips: ["Wear a belt on heavy squats and deadlifts", "Take long rest periods on compound lifts — you need them", "Foam roll quads and hamstrings post-workout"],
+  },
 
-  // UPPER BODY
+  // ──────────── UPPER BODY (Gym) ────────────
   {
     id: "gym-upper-beginner",
     name: "Beginner Upper Body",
@@ -192,8 +236,86 @@ export const workoutLibrary: LibraryWorkout[] = [
     ],
     tips: ["Alternate between pushing and pulling exercises for balance", "Start light and focus on form", "This is a great 3x per week workout"],
   },
+  {
+    id: "gym-upper-intermediate",
+    name: "Intermediate Upper Body",
+    location: "gym",
+    category: "Upper Body",
+    difficulty: "intermediate",
+    duration: "55",
+    description: "Upper body session with heavier loads and supersets for efficiency.",
+    exercises: [
+      { name: "Barbell Bench Press", sets: 4, reps: "6-8", restSeconds: 120, notes: "Warm up with 2-3 lighter sets first" },
+      { name: "Barbell Rows", sets: 4, reps: "6-8", restSeconds: 90, notes: "Superset with bench if desired" },
+      { name: "Seated Dumbbell Shoulder Press", sets: 3, reps: "8-10", restSeconds: 90 },
+      { name: "Cable Lat Pulldown (Neutral Grip)", sets: 3, reps: "10-12", restSeconds: 60 },
+      { name: "Incline Dumbbell Flyes", sets: 3, reps: "12-15", restSeconds: 60 },
+      { name: "EZ Bar Curls", sets: 3, reps: "10-12", restSeconds: 45, notes: "Superset with tricep rope pushdowns" },
+      { name: "Tricep Rope Pushdowns", sets: 3, reps: "10-12", restSeconds: 45 },
+    ],
+    tips: ["Superset antagonist muscles (push/pull) to save time", "Progressive overload on compound lifts each week", "Keep rest strict on isolation work"],
+  },
+  {
+    id: "gym-upper-advanced",
+    name: "Advanced Upper Body",
+    location: "gym",
+    category: "Upper Body",
+    difficulty: "advanced",
+    duration: "70",
+    description: "Demanding upper body session with heavy compounds and advanced techniques.",
+    exercises: [
+      { name: "Weighted Pull-Ups", sets: 4, reps: "6-8", restSeconds: 120, notes: "Add weight each week — track progress" },
+      { name: "Incline Barbell Press", sets: 4, reps: "6-8", restSeconds: 120 },
+      { name: "Seated Arnold Press", sets: 3, reps: "8-10", restSeconds: 90, notes: "Rotate palms from facing you to facing forward" },
+      { name: "Chest Supported Dumbbell Row", sets: 3, reps: "10-12", restSeconds: 60, notes: "Incline bench, eliminates momentum" },
+      { name: "Dumbbell Pullover", sets: 3, reps: "10-12", restSeconds: 60, notes: "Feel the stretch in lats and chest" },
+      { name: "Bayesian Cable Curls", sets: 3, reps: "10-12", restSeconds: 45, notes: "Stand facing away from cable, arm behind body" },
+      { name: "Overhead Rope Tricep Extension", sets: 3, reps: "12-15", restSeconds: 45, notes: "Drop set on final set" },
+      { name: "Face Pulls", sets: 3, reps: "15-20", restSeconds: 30, notes: "External rotation at the top for rotator cuff health" },
+    ],
+    tips: ["Keep a training log — progressive overload is critical at this level", "Deload every 4-6 weeks to manage fatigue", "Prioritize rear delts and rotator cuff work for shoulder longevity"],
+  },
 
-  // FULL BODY
+  // ──────────── LOWER BODY (Gym) ────────────
+  {
+    id: "gym-lower-beginner",
+    name: "Beginner Lower Body",
+    location: "gym",
+    category: "Lower Body",
+    difficulty: "beginner",
+    duration: "40",
+    description: "Simple, effective lower body workout covering quads, hamstrings, and glutes.",
+    exercises: [
+      { name: "Leg Press", sets: 3, reps: "12-15", restSeconds: 60, notes: "Moderate weight, focus on full range of motion" },
+      { name: "Dumbbell Goblet Squats", sets: 3, reps: "10-12", restSeconds: 60, notes: "Hold dumbbell at chest level" },
+      { name: "Seated Leg Curls", sets: 3, reps: "12-15", restSeconds: 45, notes: "Slow controlled movement" },
+      { name: "Dumbbell Step-Ups", sets: 3, reps: "10 each leg", restSeconds: 60, notes: "Use a flat bench — drive through the heel" },
+      { name: "Bodyweight Hip Thrusts", sets: 3, reps: "15-20", restSeconds: 45, notes: "Back against a bench, squeeze glutes at top" },
+      { name: "Standing Machine Calf Raises", sets: 3, reps: "15-20", restSeconds: 30 },
+    ],
+    tips: ["Start light to learn the movement patterns", "Keep knees in line with your toes on squats and step-ups", "Stretch hip flexors after the session — they get tight from sitting"],
+  },
+  {
+    id: "gym-lower-intermediate",
+    name: "Intermediate Lower Body",
+    location: "gym",
+    category: "Lower Body",
+    difficulty: "intermediate",
+    duration: "55",
+    description: "Strength-focused lower body session balancing quad, hamstring, and glute work.",
+    exercises: [
+      { name: "Barbell Back Squats", sets: 4, reps: "6-8", restSeconds: 120, notes: "Brace hard and drive through mid-foot" },
+      { name: "Barbell Hip Thrusts", sets: 4, reps: "8-10", restSeconds: 90, notes: "Pad the barbell — squeeze glutes at lockout" },
+      { name: "Dumbbell Reverse Lunges", sets: 3, reps: "10 each leg", restSeconds: 60 },
+      { name: "Lying Leg Curls", sets: 3, reps: "10-12", restSeconds: 45, notes: "Point toes away from you to isolate hamstrings" },
+      { name: "Leg Extensions", sets: 3, reps: "12-15", restSeconds: 45, notes: "Pause at top for 1 second" },
+      { name: "Cable Pull-Throughs", sets: 3, reps: "12-15", restSeconds: 45, notes: "Hinge at hips, feel the stretch in glutes/hams" },
+      { name: "Seated Calf Raises", sets: 3, reps: "15-20", restSeconds: 30, notes: "Slow eccentrics for deeper stimulus" },
+    ],
+    tips: ["Brace your core with a big breath before every squat rep", "Don't let your knees cave inward — push them out", "Hip thrusts are the best glute builder — load them heavy"],
+  },
+
+  // ──────────── FULL BODY (Gym) ────────────
   {
     id: "gym-fullbody-beginner",
     name: "Beginner Full Body",
@@ -212,8 +334,86 @@ export const workoutLibrary: LibraryWorkout[] = [
     ],
     tips: ["Great for 2-3x per week training", "Focus on compound movements", "Increase weight gradually each week"],
   },
+  {
+    id: "gym-fullbody-intermediate",
+    name: "Intermediate Full Body",
+    location: "gym",
+    category: "Full Body",
+    difficulty: "intermediate",
+    duration: "60",
+    description: "Full body session with compound lifts and moderate volume for all major muscle groups.",
+    exercises: [
+      { name: "Barbell Back Squats", sets: 4, reps: "6-8", restSeconds: 120, notes: "Primary lower body compound" },
+      { name: "Barbell Bench Press", sets: 4, reps: "6-8", restSeconds: 120 },
+      { name: "Barbell Rows", sets: 3, reps: "8-10", restSeconds: 90, notes: "Overhand grip, pull to lower chest" },
+      { name: "Dumbbell Lunges", sets: 3, reps: "10 each leg", restSeconds: 60 },
+      { name: "Seated Dumbbell Shoulder Press", sets: 3, reps: "10-12", restSeconds: 60 },
+      { name: "Hanging Leg Raises", sets: 3, reps: "10-15", restSeconds: 45, notes: "Bend knees if straight legs are too hard" },
+      { name: "Bicep Curls / Tricep Pushdowns Superset", sets: 2, reps: "12-15 each", restSeconds: 45, notes: "Superset to save time" },
+    ],
+    tips: ["Perform heavy compounds first while you are freshest", "Full body 3x per week is excellent for intermediate lifters", "Keep session under 60-65 minutes for best results"],
+  },
+  {
+    id: "gym-fullbody-advanced",
+    name: "Advanced Full Body",
+    location: "gym",
+    category: "Full Body",
+    difficulty: "advanced",
+    duration: "75",
+    description: "High-intensity full body workout with heavy lifts and supersets throughout.",
+    exercises: [
+      { name: "Barbell Deadlifts", sets: 4, reps: "4-6", restSeconds: 180, notes: "Warm up thoroughly — belt optional" },
+      { name: "Incline Barbell Bench Press", sets: 4, reps: "6-8", restSeconds: 120 },
+      { name: "Weighted Chin-Ups", sets: 4, reps: "6-8", restSeconds: 90, notes: "Underhand grip, add weight via belt" },
+      { name: "Front Squats", sets: 3, reps: "8-10", restSeconds: 120, notes: "Keeps you upright, hammers quads" },
+      { name: "Single Arm Dumbbell Row", sets: 3, reps: "10-12", restSeconds: 60 },
+      { name: "Cable Lateral Raises", sets: 3, reps: "12-15", restSeconds: 30, notes: "Superset with face pulls" },
+      { name: "Face Pulls", sets: 3, reps: "15-20", restSeconds: 30 },
+      { name: "Ab Wheel Rollouts", sets: 3, reps: "10-12", restSeconds: 45, notes: "From knees or standing depending on ability" },
+    ],
+    tips: ["This is taxing — ensure you ate well before training", "Full body advanced works well 3x per week with a day of rest between sessions", "Deload every 4 weeks — you will need it"],
+  },
 
-  // CORE
+  // ──────────── HIIT (Gym) ────────────
+  {
+    id: "gym-hiit-beginner",
+    name: "Beginner Gym HIIT Circuit",
+    location: "gym",
+    category: "HIIT",
+    difficulty: "beginner",
+    duration: "25",
+    description: "Circuit-style HIIT using gym machines and bodyweight movements for beginners.",
+    exercises: [
+      { name: "Treadmill Walk-to-Jog Intervals", sets: 1, reps: "5 min (30s jog / 30s walk)", restSeconds: 60, notes: "Start at a comfortable pace and build" },
+      { name: "Goblet Squats", sets: 3, reps: "12", restSeconds: 30, notes: "Light dumbbell, quick pace" },
+      { name: "Battle Rope Slams", sets: 3, reps: "20 seconds", restSeconds: 40, notes: "Alternate arms or double arm" },
+      { name: "Kettlebell Deadlifts", sets: 3, reps: "12", restSeconds: 30, notes: "Hinge at hips, stand tall" },
+      { name: "Push-Ups", sets: 3, reps: "8-10", restSeconds: 30 },
+      { name: "Rowing Machine Sprint", sets: 3, reps: "30 seconds", restSeconds: 45, notes: "Drive with legs first, then pull" },
+    ],
+    tips: ["Focus on learning form before increasing speed", "Heart rate should be elevated but you should still be able to talk", "Rest longer if you feel lightheaded"],
+  },
+  {
+    id: "gym-hiit-intermediate",
+    name: "Intermediate Gym HIIT Circuit",
+    location: "gym",
+    category: "HIIT",
+    difficulty: "intermediate",
+    duration: "35",
+    description: "High-intensity gym circuit alternating cardio machines with strength moves.",
+    exercises: [
+      { name: "Rowing Machine Intervals", sets: 1, reps: "4 min (40s hard / 20s easy)", restSeconds: 60, notes: "Maintain good posture throughout" },
+      { name: "Barbell Thrusters", sets: 3, reps: "10", restSeconds: 30, notes: "Light barbell — squat into overhead press" },
+      { name: "Box Jumps", sets: 3, reps: "10", restSeconds: 30, notes: "Step down, don't jump down" },
+      { name: "Kettlebell Swings", sets: 3, reps: "15", restSeconds: 30, notes: "Power comes from hip snap, not arms" },
+      { name: "Assault Bike Sprints", sets: 3, reps: "30 seconds", restSeconds: 30, notes: "All-out effort" },
+      { name: "Medicine Ball Slams", sets: 3, reps: "12", restSeconds: 30, notes: "Full extension overhead, slam hard" },
+      { name: "Burpee to Pull-Up", sets: 3, reps: "6-8", restSeconds: 45, notes: "Jump to pull-up bar and perform one pull-up" },
+    ],
+    tips: ["Complete all exercises as a circuit with minimal rest", "Rest 2 minutes between full rounds", "Scale the weights so you can maintain pace for the whole session"],
+  },
+
+  // ──────────── CORE (Gym/Both) ────────────
   {
     id: "gym-core-all",
     name: "Core Blaster",
@@ -233,7 +433,24 @@ export const workoutLibrary: LibraryWorkout[] = [
     tips: ["Brace your core — don't just crunch", "Quality reps over speed", "Can be added to the end of any workout"],
   },
 
-  // CHEST
+  // ──────────── CHEST (Gym) ────────────
+  {
+    id: "gym-chest-beginner",
+    name: "Beginner Chest Day",
+    location: "gym",
+    category: "Chest",
+    difficulty: "beginner",
+    duration: "35",
+    description: "Learn the key chest pressing and fly patterns with manageable volume.",
+    exercises: [
+      { name: "Machine Chest Press", sets: 3, reps: "12-15", restSeconds: 60, notes: "Adjust seat so handles are at mid-chest" },
+      { name: "Flat Dumbbell Bench Press", sets: 3, reps: "10-12", restSeconds: 60, notes: "Control the weight down, press up strong" },
+      { name: "Incline Dumbbell Press", sets: 3, reps: "10-12", restSeconds: 60, notes: "30-degree incline for upper chest" },
+      { name: "Pec Deck Machine", sets: 3, reps: "12-15", restSeconds: 45, notes: "Slight bend in elbows, squeeze at center" },
+      { name: "Push-Ups", sets: 2, reps: "To failure", restSeconds: 45, notes: "Burnout finisher" },
+    ],
+    tips: ["Machines are great for learning the pressing motion safely", "Retract your shoulder blades before every press", "Don't bounce the weight off your chest"],
+  },
   {
     id: "gym-chest-intermediate",
     name: "Chest Focus Day",
@@ -252,8 +469,45 @@ export const workoutLibrary: LibraryWorkout[] = [
     ],
     tips: ["Pre-exhaust with flyes if chest isn't activating well", "Retract and depress shoulder blades on all pressing", "Stretch chest between sets"],
   },
+  {
+    id: "gym-chest-advanced",
+    name: "Advanced Chest Day",
+    location: "gym",
+    category: "Chest",
+    difficulty: "advanced",
+    duration: "55",
+    description: "High-volume chest session with drop sets, paused reps, and pre-exhaust techniques.",
+    exercises: [
+      { name: "Low-to-High Cable Flyes", sets: 3, reps: "15", restSeconds: 45, notes: "Pre-exhaust — feel the chest working before pressing" },
+      { name: "Flat Barbell Bench Press (Paused)", sets: 5, reps: "4-6", restSeconds: 150, notes: "2-second pause on chest each rep" },
+      { name: "Incline Dumbbell Press", sets: 4, reps: "8-10", restSeconds: 90, notes: "Controlled tempo 3-1-1" },
+      { name: "Dumbbell Floor Press", sets: 3, reps: "10-12", restSeconds: 60, notes: "Limits range to focus on lockout strength" },
+      { name: "Cable Crossovers (High to Low)", sets: 3, reps: "12-15", restSeconds: 45, notes: "Targets lower chest, squeeze hard" },
+      { name: "Machine Chest Press", sets: 3, reps: "10-12", restSeconds: 60, notes: "Double drop set on final set" },
+      { name: "Deficit Push-Ups", sets: 2, reps: "To failure", restSeconds: 60, notes: "Hands on dumbbells for deeper stretch" },
+    ],
+    tips: ["Pre-exhaust with flyes helps lifters whose shoulders dominate pressing", "Paused reps build off-the-chest strength and eliminate bounce", "Volume is high — ensure nutrition and recovery support this workload"],
+  },
 
-  // BACK
+  // ──────────── BACK (Gym) ────────────
+  {
+    id: "gym-back-beginner",
+    name: "Beginner Back Day",
+    location: "gym",
+    category: "Back",
+    difficulty: "beginner",
+    duration: "35",
+    description: "Learn to engage your back muscles with machine and cable movements.",
+    exercises: [
+      { name: "Lat Pulldown (Wide Grip)", sets: 3, reps: "12-15", restSeconds: 60, notes: "Pull to upper chest, lean back slightly" },
+      { name: "Seated Cable Row (V-Bar)", sets: 3, reps: "12-15", restSeconds: 60, notes: "Pull to belly button, squeeze shoulder blades" },
+      { name: "Machine Assisted Pull-Ups", sets: 3, reps: "8-10", restSeconds: 60, notes: "Use enough assistance to complete reps with good form" },
+      { name: "Dumbbell Rows (Bench Supported)", sets: 3, reps: "10-12 each", restSeconds: 60, notes: "Knee and hand on bench, row to hip" },
+      { name: "Cable Face Pulls", sets: 3, reps: "15-20", restSeconds: 45, notes: "Pull to face, rotate hands outward" },
+      { name: "Straight Arm Pulldowns", sets: 2, reps: "12-15", restSeconds: 45, notes: "Lock arms straight, feel lats stretch and contract" },
+    ],
+    tips: ["Think 'bend your elbows back' rather than 'pull with your hands'", "Use wrist straps if grip gives out before your back is tired", "Start with machines to build mind-muscle connection"],
+  },
   {
     id: "gym-back-intermediate",
     name: "Back Focus Day",
@@ -272,8 +526,44 @@ export const workoutLibrary: LibraryWorkout[] = [
     ],
     tips: ["Deadlifts first while fresh", "Pull with elbows, not hands", "Vary grip between overhand, underhand, and neutral across weeks"],
   },
+  {
+    id: "gym-back-advanced",
+    name: "Advanced Back Day",
+    location: "gym",
+    category: "Back",
+    difficulty: "advanced",
+    duration: "65",
+    description: "Heavy back session building width and thickness with advanced rowing and pulling patterns.",
+    exercises: [
+      { name: "Barbell Rows (Overhand)", sets: 4, reps: "5-7", restSeconds: 120, notes: "Strict form — torso at 45 degrees" },
+      { name: "Weighted Pull-Ups (Wide Grip)", sets: 4, reps: "6-8", restSeconds: 120, notes: "Full dead hang at bottom, chin over bar at top" },
+      { name: "Chest Supported Row Machine", sets: 3, reps: "8-10", restSeconds: 60, notes: "No momentum — pure back contraction" },
+      { name: "Rack Pulls", sets: 3, reps: "5-6", restSeconds: 120, notes: "Set pins just below the knee for upper back emphasis" },
+      { name: "Kayak Rows (Cable)", sets: 3, reps: "12 each side", restSeconds: 45, notes: "Alternating arms with a rope, twisting torso slightly" },
+      { name: "Reverse Grip Lat Pulldown", sets: 3, reps: "10-12", restSeconds: 60, notes: "Underhand grip targets lower lats" },
+      { name: "Rear Delt Flyes (Cable)", sets: 3, reps: "15-20", restSeconds: 30, notes: "High cable, no handle, cross the cables" },
+    ],
+    tips: ["Use lifting straps for heavy rows so grip doesn't limit back work", "Mix up row angles — different angles hit different back regions", "Rack pulls are excellent for upper back thickness and trap development"],
+  },
 
-  // SHOULDERS
+  // ──────────── SHOULDERS (Gym) ────────────
+  {
+    id: "gym-shoulders-beginner",
+    name: "Beginner Shoulder Day",
+    location: "gym",
+    category: "Shoulders",
+    difficulty: "beginner",
+    duration: "30",
+    description: "Learn proper shoulder training with controlled movements and light weights.",
+    exercises: [
+      { name: "Machine Shoulder Press", sets: 3, reps: "12-15", restSeconds: 60, notes: "Adjust seat so handles start at ear height" },
+      { name: "Dumbbell Lateral Raises", sets: 3, reps: "12-15", restSeconds: 45, notes: "Light weight — lead with pinkies slightly" },
+      { name: "Cable Front Raises", sets: 3, reps: "12-15", restSeconds: 45, notes: "Single arm, raise to eye level" },
+      { name: "Reverse Pec Deck", sets: 3, reps: "12-15", restSeconds: 45, notes: "Targets rear delts — squeeze at the back" },
+      { name: "Dumbbell Shrugs", sets: 3, reps: "12-15", restSeconds: 45, notes: "Squeeze traps at the top, hold 1 second" },
+    ],
+    tips: ["Shoulders respond best to higher reps with controlled form", "Don't go heavy on lateral raises — it leads to using momentum", "Warm up your rotator cuffs with band work before pressing"],
+  },
   {
     id: "gym-shoulders-intermediate",
     name: "Shoulder Builder",
@@ -292,8 +582,45 @@ export const workoutLibrary: LibraryWorkout[] = [
     ],
     tips: ["Lateral raises are king for wider shoulders", "Don't go too heavy — use controlled form", "Rear delts are often neglected, prioritise face pulls"],
   },
+  {
+    id: "gym-shoulders-advanced",
+    name: "Advanced Shoulder Day",
+    location: "gym",
+    category: "Shoulders",
+    difficulty: "advanced",
+    duration: "50",
+    description: "High-volume shoulder session with giant sets and advanced isolation work.",
+    exercises: [
+      { name: "Standing Barbell Overhead Press", sets: 5, reps: "5-7", restSeconds: 120, notes: "Strict form — no leg drive" },
+      { name: "Seated Arnold Press", sets: 4, reps: "8-10", restSeconds: 90, notes: "Rotate from palms facing you to palms forward as you press" },
+      { name: "Cable Lateral Raises (Drop Set)", sets: 4, reps: "12, drop, 12, drop, 12", restSeconds: 60, notes: "Triple drop set — reduce weight each time" },
+      { name: "Lu Raises", sets: 3, reps: "10-12", restSeconds: 60, notes: "Lateral raise into front raise in one motion — light weight" },
+      { name: "Cable Rear Delt Flyes", sets: 3, reps: "15-20", restSeconds: 30, notes: "Cables crossed at face height" },
+      { name: "Barbell Upright Rows (Wide Grip)", sets: 3, reps: "10-12", restSeconds: 60, notes: "Wide grip reduces impingement risk — pull to mid-chest only" },
+      { name: "Plate Front Raises", sets: 2, reps: "12-15", restSeconds: 45, notes: "Hold a plate at 3 and 9 o'clock — raise to eye level" },
+    ],
+    tips: ["The overhead press is a full-body lift — brace your core and squeeze glutes", "Giant sets (3+ exercises back to back) are excellent for shoulder hypertrophy", "If shoulder joints ache, add in external rotation warm-ups with a light band"],
+  },
 
-  // ARMS
+  // ──────────── ARMS (Gym) ────────────
+  {
+    id: "gym-arms-beginner",
+    name: "Beginner Arm Day",
+    location: "gym",
+    category: "Arms",
+    difficulty: "beginner",
+    duration: "30",
+    description: "Simple arm workout alternating biceps and triceps for balanced development.",
+    exercises: [
+      { name: "Dumbbell Bicep Curls", sets: 3, reps: "12-15", restSeconds: 45, notes: "Alternate arms or both at once" },
+      { name: "Tricep Rope Pushdowns", sets: 3, reps: "12-15", restSeconds: 45, notes: "Spread the rope at the bottom, squeeze triceps" },
+      { name: "Hammer Curls", sets: 3, reps: "12-15", restSeconds: 45, notes: "Neutral grip — thumbs pointing up" },
+      { name: "Overhead Dumbbell Tricep Extension", sets: 3, reps: "12-15", restSeconds: 45, notes: "Both hands on one dumbbell, lower behind head" },
+      { name: "Cable Curls (Straight Bar)", sets: 2, reps: "12-15", restSeconds: 45, notes: "Keep elbows pinned to sides" },
+      { name: "Bench Dips", sets: 2, reps: "10-12", restSeconds: 45, notes: "Hands on bench behind you, legs straight or bent" },
+    ],
+    tips: ["Control the weight — don't swing", "Superset biceps and triceps (one after the other with no rest) for efficiency", "Arms grow from progressive overload just like any other muscle"],
+  },
   {
     id: "gym-arms-intermediate",
     name: "Arm Day",
@@ -313,8 +640,46 @@ export const workoutLibrary: LibraryWorkout[] = [
     ],
     tips: ["Superset biceps and triceps for efficiency", "Full range of motion on every rep", "Don't swing — if you need momentum, the weight is too heavy"],
   },
+  {
+    id: "gym-arms-advanced",
+    name: "Advanced Arm Day",
+    location: "gym",
+    category: "Arms",
+    difficulty: "advanced",
+    duration: "50",
+    description: "High-volume arm session with supersets, drop sets, and mechanical drop sets.",
+    exercises: [
+      { name: "Barbell Curls (Cheat Curls)", sets: 3, reps: "6-8", restSeconds: 90, notes: "Slight body English on the last 2 reps only — controlled negatives" },
+      { name: "Weighted Dips (Tricep Focus)", sets: 4, reps: "8-10", restSeconds: 90, notes: "Upright torso to target triceps" },
+      { name: "Preacher Curls (EZ Bar)", sets: 3, reps: "10-12", restSeconds: 60, notes: "3-second negative on each rep" },
+      { name: "Skull Crushers", sets: 3, reps: "10-12", restSeconds: 60, notes: "Lower to forehead, press up to lockout" },
+      { name: "Cross Body Hammer Curls", sets: 3, reps: "10-12 each", restSeconds: 45, notes: "Curl across your body to opposite shoulder" },
+      { name: "Diamond Push-Ups", sets: 3, reps: "To failure", restSeconds: 45, notes: "Mechanical drop set — follow with regular push-ups to failure" },
+      { name: "Concentration Curls", sets: 2, reps: "12-15", restSeconds: 45, notes: "Seated, elbow braced on inner thigh" },
+      { name: "Tricep Kickbacks (Cable)", sets: 2, reps: "15-20", restSeconds: 30, notes: "Hold peak contraction for 1 second" },
+    ],
+    tips: ["Superset antagonist pairs for maximum pump and time efficiency", "Mechanical drop sets (harder variation to easier) extend the set past failure", "Arms recover fast — you can train them 2-3x per week if volume is managed"],
+  },
 
-  // GLUTES
+  // ──────────── GLUTES (Gym) ────────────
+  {
+    id: "gym-glutes-beginner",
+    name: "Beginner Glute Day",
+    location: "gym",
+    category: "Glutes",
+    difficulty: "beginner",
+    duration: "35",
+    description: "Learn to activate and strengthen your glutes with machine and bodyweight movements.",
+    exercises: [
+      { name: "Bodyweight Hip Thrusts (Bench)", sets: 3, reps: "15-20", restSeconds: 45, notes: "Back against bench, squeeze hard at the top" },
+      { name: "Cable Pull-Throughs", sets: 3, reps: "12-15", restSeconds: 45, notes: "Hinge at hips, feel the stretch, squeeze glutes to stand" },
+      { name: "Goblet Sumo Squats", sets: 3, reps: "12-15", restSeconds: 60, notes: "Wide stance, toes pointed out 45 degrees" },
+      { name: "Step-Ups (Bench)", sets: 3, reps: "10 each leg", restSeconds: 60, notes: "Push through the heel of the top foot" },
+      { name: "Abductor Machine", sets: 3, reps: "15-20", restSeconds: 30, notes: "Lean forward slightly for upper glute" },
+      { name: "Glute Kickback Machine", sets: 3, reps: "12-15 each", restSeconds: 30, notes: "Squeeze at full extension" },
+    ],
+    tips: ["Warm up with banded walks and clams to wake up the glutes", "If you can't feel your glutes working, slow down and squeeze harder at the top", "Glute activation is a skill — it improves with practice"],
+  },
   {
     id: "gym-glutes-intermediate",
     name: "Glute Focus",
@@ -333,10 +698,146 @@ export const workoutLibrary: LibraryWorkout[] = [
     ],
     tips: ["Mind-muscle connection is everything for glutes", "Warm up with banded walks", "Squeeze and hold at peak contraction"],
   },
+  {
+    id: "gym-glutes-advanced",
+    name: "Advanced Glute Day",
+    location: "gym",
+    category: "Glutes",
+    difficulty: "advanced",
+    duration: "55",
+    description: "Intense glute-focused session with heavy hip hinges and high-rep burnouts.",
+    exercises: [
+      { name: "Barbell Hip Thrusts", sets: 5, reps: "6-8", restSeconds: 120, notes: "Go heavy — use a pad on the barbell" },
+      { name: "Sumo Deadlifts", sets: 4, reps: "6-8", restSeconds: 120, notes: "Wide stance, push knees out, drive hips through" },
+      { name: "Barbell Walking Lunges", sets: 3, reps: "10 each leg", restSeconds: 90, notes: "Long strides to bias glutes over quads" },
+      { name: "Single Leg Romanian Deadlift (Dumbbell)", sets: 3, reps: "10 each leg", restSeconds: 60, notes: "Hinge forward, free leg goes back" },
+      { name: "Cable Pull-Throughs", sets: 3, reps: "15-20", restSeconds: 45, notes: "Lighter weight, focus on peak squeeze" },
+      { name: "Banded Hip Abduction (Seated)", sets: 3, reps: "20-25", restSeconds: 30, notes: "Sit on bench edge, heavy band above knees, push out" },
+      { name: "Frog Pumps (Banded)", sets: 2, reps: "30", restSeconds: 30, notes: "Soles of feet together, knees out, pump fast" },
+    ],
+    tips: ["Heavy hip thrusts are the single best glute builder — progressively overload them", "Single leg work corrects imbalances between sides", "Burnout sets at the end with bands create an incredible pump and metabolic stress"],
+  },
 
-  // ============ HOME WORKOUTS ============
+  // ──────────── CARDIO (Gym) ────────────
+  {
+    id: "gym-cardio-beginner",
+    name: "Beginner Cardio Circuit",
+    location: "gym",
+    category: "Cardio",
+    difficulty: "beginner",
+    duration: "25",
+    description: "Easy-to-follow cardio session using gym machines with intervals.",
+    exercises: [
+      { name: "Treadmill Brisk Walk (Incline)", sets: 1, reps: "8 minutes", restSeconds: 60, notes: "3-5% incline, speed 5.5-6.5 km/h" },
+      { name: "Stationary Bike (Steady)", sets: 1, reps: "5 minutes", restSeconds: 60, notes: "Moderate resistance, maintain 70-80 RPM" },
+      { name: "Elliptical (Forward)", sets: 1, reps: "5 minutes", restSeconds: 60, notes: "Light resistance, keep posture upright" },
+      { name: "Rowing Machine (Easy Pace)", sets: 1, reps: "4 minutes", restSeconds: 60, notes: "Focus on leg drive, keep back straight" },
+      { name: "Stair Climber (Steady)", sets: 1, reps: "3 minutes", restSeconds: 0, notes: "Hold rails lightly, stand tall" },
+    ],
+    tips: ["Rotate between machines to keep it interesting", "Aim for a 6/10 effort — you should be able to hold a conversation", "This is a great active recovery day option"],
+  },
+  {
+    id: "gym-cardio-intermediate",
+    name: "Interval Cardio Blast",
+    location: "gym",
+    category: "Cardio",
+    difficulty: "intermediate",
+    duration: "35",
+    description: "Challenging interval training alternating between machines for maximum calorie burn.",
+    exercises: [
+      { name: "Treadmill Intervals", sets: 1, reps: "8 min (1 min sprint / 1 min walk)", restSeconds: 60, notes: "Sprint at 10-12 km/h, walk at 5 km/h" },
+      { name: "Rowing Machine Intervals", sets: 1, reps: "6 min (40s hard / 20s easy)", restSeconds: 60, notes: "Target 500m split under 2:00 on hard intervals" },
+      { name: "Assault Bike Intervals", sets: 1, reps: "6 min (30s max / 30s cruise)", restSeconds: 60, notes: "Arms and legs — go all out on hard intervals" },
+      { name: "Stair Climber (Continuous)", sets: 1, reps: "5 minutes", restSeconds: 60, notes: "Moderate pace, no hands on rails" },
+      { name: "Jump Rope (or Pretend Jump Rope)", sets: 3, reps: "1 minute", restSeconds: 30, notes: "Light bounce on balls of feet" },
+    ],
+    tips: ["Heart rate should spike during hard intervals and partially recover during rest", "Bring a towel and water — you will sweat", "Track your distances and times to measure improvement over weeks"],
+  },
 
-  // HOME FULL BODY
+  // ──────────── FUNCTIONAL (Gym) ────────────
+  {
+    id: "gym-functional-beginner",
+    name: "Beginner Functional Circuit",
+    location: "gym",
+    category: "Functional",
+    difficulty: "beginner",
+    duration: "30",
+    description: "Functional movements that build real-world strength, balance, and coordination.",
+    exercises: [
+      { name: "Kettlebell Goblet Squats", sets: 3, reps: "12", restSeconds: 45, notes: "Sit deep, keep chest up" },
+      { name: "Dumbbell Farmers Carry", sets: 3, reps: "30 meters", restSeconds: 45, notes: "Heavy dumbbells at your sides, walk tall" },
+      { name: "Medicine Ball Slams", sets: 3, reps: "10", restSeconds: 45, notes: "Full overhead extension, slam to the floor" },
+      { name: "Step-Ups with Knee Drive", sets: 3, reps: "10 each leg", restSeconds: 45, notes: "Step up, drive opposite knee to chest" },
+      { name: "TRX Rows (or Inverted Rows)", sets: 3, reps: "10-12", restSeconds: 45, notes: "Body straight, pull chest to hands" },
+      { name: "Pallof Press", sets: 3, reps: "10 each side", restSeconds: 30, notes: "Anti-rotation core — press cable straight out from chest" },
+    ],
+    tips: ["Functional training is about quality movement, not maximum weight", "These movements translate directly to daily life activities", "Move through full ranges of motion on every exercise"],
+  },
+  {
+    id: "gym-functional-intermediate",
+    name: "Intermediate Functional Circuit",
+    location: "gym",
+    category: "Functional",
+    difficulty: "intermediate",
+    duration: "40",
+    description: "Dynamic functional circuit with kettlebells, plyometrics, and loaded carries.",
+    exercises: [
+      { name: "Kettlebell Swings", sets: 4, reps: "15", restSeconds: 45, notes: "Explosive hip snap — arms are just along for the ride" },
+      { name: "Box Jumps", sets: 3, reps: "8", restSeconds: 60, notes: "Land softly with both feet fully on the box, step down" },
+      { name: "Turkish Get-Ups", sets: 2, reps: "3 each side", restSeconds: 60, notes: "Slow and controlled — every position matters" },
+      { name: "Medicine Ball Rotational Throws", sets: 3, reps: "8 each side", restSeconds: 45, notes: "Pivot feet and hips, throw against a wall" },
+      { name: "Sled Push (or Prowler)", sets: 3, reps: "20 meters", restSeconds: 90, notes: "Low handle position, drive with legs" },
+      { name: "Single Leg Romanian Deadlift (Kettlebell)", sets: 3, reps: "10 each", restSeconds: 45, notes: "Balance and hip hinge combined" },
+      { name: "Battle Rope Alternating Waves", sets: 3, reps: "30 seconds", restSeconds: 30, notes: "Keep core tight, generate waves from shoulders" },
+    ],
+    tips: ["Move with intention — functional training rewards precision over speed", "Kettlebell swings should be powered by the hips, not the arms or back", "Rest as needed between exercises to maintain form quality"],
+  },
+
+  // ──────────── STRETCHING / MOBILITY (Gym/Both) ────────────
+  {
+    id: "gym-stretching-beginner",
+    name: "Post-Workout Stretch Routine",
+    location: "both",
+    category: "Stretching",
+    difficulty: "beginner",
+    duration: "15",
+    description: "Essential stretching routine to perform after any workout. Reduces soreness and improves flexibility.",
+    exercises: [
+      { name: "Standing Quad Stretch", sets: 1, reps: "30 sec each leg", restSeconds: 0, notes: "Hold foot behind you, keep knees together" },
+      { name: "Standing Hamstring Stretch", sets: 1, reps: "30 sec each leg", restSeconds: 0, notes: "Foot on low bench or step, hinge forward at hips" },
+      { name: "Cross-Body Shoulder Stretch", sets: 1, reps: "30 sec each arm", restSeconds: 0, notes: "Pull arm across chest, feel stretch in rear delt" },
+      { name: "Chest Doorway Stretch", sets: 1, reps: "30 sec each side", restSeconds: 0, notes: "Forearm on doorframe, lean through gently" },
+      { name: "Cat-Cow Stretch", sets: 1, reps: "10 reps (slow)", restSeconds: 0, notes: "On all fours — alternate arching and rounding the spine" },
+      { name: "Seated Spinal Twist", sets: 1, reps: "30 sec each side", restSeconds: 0, notes: "Sit tall, twist gently, look over your shoulder" },
+      { name: "Child's Pose", sets: 1, reps: "45-60 seconds", restSeconds: 0, notes: "Knees wide, reach arms forward, relax into the floor" },
+    ],
+    tips: ["Never bounce in a stretch — hold steady and breathe", "Stretch after workouts when muscles are warm for best results", "Breathe deeply and try to relax into each stretch a little more with each exhale"],
+  },
+  {
+    id: "gym-stretching-intermediate",
+    name: "Full Body Mobility Flow",
+    location: "both",
+    category: "Stretching",
+    difficulty: "intermediate",
+    duration: "20",
+    description: "Dynamic mobility routine targeting hips, thoracic spine, and shoulders for better movement quality.",
+    exercises: [
+      { name: "World's Greatest Stretch", sets: 2, reps: "5 each side", restSeconds: 0, notes: "Lunge, twist, reach — hits hips, thoracic spine, and hamstrings" },
+      { name: "90/90 Hip Switches", sets: 2, reps: "8 each side", restSeconds: 0, notes: "Sit on floor, alternate between internal and external rotation" },
+      { name: "Thoracic Spine Rotation (Side-Lying)", sets: 2, reps: "8 each side", restSeconds: 0, notes: "Lie on side, rotate top arm open, follow with eyes" },
+      { name: "Banded Shoulder Dislocations", sets: 2, reps: "10", restSeconds: 0, notes: "Wide grip on band, pass overhead and behind in an arc" },
+      { name: "Deep Squat Hold", sets: 2, reps: "30-45 seconds", restSeconds: 0, notes: "Heels flat, elbows push knees out, chest up" },
+      { name: "Pigeon Stretch", sets: 1, reps: "45 sec each side", restSeconds: 0, notes: "Front shin across the body, sink hips down" },
+      { name: "Prone Scorpion Stretch", sets: 2, reps: "6 each side", restSeconds: 0, notes: "Face down, reach foot across body to opposite side" },
+    ],
+    tips: ["Mobility work is best done before a workout as part of your warm-up", "Move slowly and breathe into tight positions", "Consistency beats intensity — 10 minutes daily is better than 60 minutes once a week"],
+  },
+
+  // ============================================================
+  // HOME WORKOUTS
+  // ============================================================
+
+  // ──────────── FULL BODY (Home) ────────────
   {
     id: "home-fullbody-beginner",
     name: "Beginner Home Full Body",
@@ -376,7 +877,7 @@ export const workoutLibrary: LibraryWorkout[] = [
     tips: ["Minimal rest for a cardio effect", "Modify exercises down if needed", "Add a backpack with books for extra resistance"],
   },
 
-  // HOME UPPER BODY
+  // ──────────── UPPER BODY (Home) ────────────
   {
     id: "home-upper-beginner",
     name: "Home Upper Body",
@@ -395,8 +896,27 @@ export const workoutLibrary: LibraryWorkout[] = [
     ],
     tips: ["Slow and controlled reps for maximum tension", "Incline push-ups (hands on sofa) if regular are too hard", "Add a filled backpack for extra challenge"],
   },
+  {
+    id: "home-upper-intermediate",
+    name: "Home Upper Body Blast",
+    location: "home",
+    category: "Upper Body",
+    difficulty: "intermediate",
+    duration: "35",
+    description: "Challenging upper body workout using bodyweight, a chair, and optional resistance bands.",
+    exercises: [
+      { name: "Decline Push-Ups (Feet on Chair)", sets: 3, reps: "10-12", restSeconds: 45, notes: "Feet elevated on a chair to increase difficulty" },
+      { name: "Inverted Rows (Under a Table)", sets: 3, reps: "8-12", restSeconds: 60, notes: "Lie under a sturdy table, grip edge, pull chest to table" },
+      { name: "Archer Push-Ups", sets: 3, reps: "6-8 each side", restSeconds: 45, notes: "Wide position, shift weight to one arm as you lower" },
+      { name: "Chair Tricep Dips (Legs Extended)", sets: 3, reps: "12-15", restSeconds: 45, notes: "Legs straight for more difficulty" },
+      { name: "Band Pull-Aparts", sets: 3, reps: "15-20", restSeconds: 30, notes: "Resistance band at chest height, pull apart to stretch band" },
+      { name: "Pseudo Planche Push-Ups", sets: 3, reps: "6-8", restSeconds: 45, notes: "Hands turned backward near hips, lean forward — advanced" },
+      { name: "Plank Reach-Outs", sets: 3, reps: "8 each arm", restSeconds: 30, notes: "From plank, reach one arm straight ahead, alternate" },
+    ],
+    tips: ["A sturdy table makes an excellent rowing station at home", "Resistance bands add a huge range of upper body exercises", "Bodyweight training rewards slow, controlled movement and time under tension"],
+  },
 
-  // HOME LOWER BODY
+  // ──────────── LOWER BODY (Home) ────────────
   {
     id: "home-lower-beginner",
     name: "Home Lower Body",
@@ -415,8 +935,124 @@ export const workoutLibrary: LibraryWorkout[] = [
     ],
     tips: ["Use a sturdy chair or step for step-ups", "Squeeze your glutes on every rep", "Add tempo (3 seconds down, 1 second up) for extra difficulty"],
   },
+  {
+    id: "home-lower-intermediate",
+    name: "Home Lower Body Builder",
+    location: "home",
+    category: "Lower Body",
+    difficulty: "intermediate",
+    duration: "35",
+    description: "Intermediate bodyweight and minimal-equipment lower body workout for strength and tone.",
+    exercises: [
+      { name: "Bulgarian Split Squats (Foot on Chair)", sets: 3, reps: "10 each leg", restSeconds: 60, notes: "Rear foot elevated on a chair or sofa" },
+      { name: "Single Leg Romanian Deadlift (Bodyweight)", sets: 3, reps: "10 each leg", restSeconds: 45, notes: "Hinge forward, free leg goes back — hold water bottles for load" },
+      { name: "Pistol Squat Negatives", sets: 3, reps: "5 each leg", restSeconds: 60, notes: "Lower slowly on one leg to a chair seat, stand up with both legs" },
+      { name: "Lateral Lunges", sets: 3, reps: "10 each side", restSeconds: 45, notes: "Step wide to the side, push hips back, keep other leg straight" },
+      { name: "Single Leg Calf Raises", sets: 3, reps: "15 each leg", restSeconds: 20, notes: "Hold a wall for balance, full range on a step edge" },
+      { name: "Wall Sit (Single Leg Hold)", sets: 3, reps: "15-20 sec each leg", restSeconds: 30, notes: "Standard wall sit but lift one foot off the floor" },
+      { name: "Banded Side Steps", sets: 3, reps: "15 each direction", restSeconds: 30, notes: "Mini band around ankles, stay low in a quarter squat" },
+    ],
+    tips: ["Single leg work is critical for home training — it doubles the difficulty without equipment", "Hold water bottles, books, or a backpack to add resistance", "Slow negatives (lowering phase) build strength even without heavy weights"],
+  },
 
-  // HOME HIIT
+  // ──────────── PUSH (Home) ────────────
+  {
+    id: "home-push-beginner",
+    name: "Beginner Home Push",
+    location: "home",
+    category: "Push",
+    difficulty: "beginner",
+    duration: "20",
+    description: "Bodyweight pushing movements to build chest, shoulders, and triceps at home.",
+    exercises: [
+      { name: "Incline Push-Ups (Hands on Sofa)", sets: 3, reps: "12-15", restSeconds: 45, notes: "Easier than floor push-ups — great starting point" },
+      { name: "Knee Push-Ups", sets: 3, reps: "10-12", restSeconds: 45, notes: "Full range of motion even from knees" },
+      { name: "Chair Tricep Dips", sets: 3, reps: "8-12", restSeconds: 45, notes: "Hands on chair seat behind you, legs bent" },
+      { name: "Wall Push-Ups", sets: 3, reps: "15-20", restSeconds: 30, notes: "Stand arm's length from wall, lean in and push back" },
+      { name: "Plank Hold", sets: 3, reps: "20-30 seconds", restSeconds: 30, notes: "Straight line from head to heels" },
+    ],
+    tips: ["Start with wall and incline push-ups and progress to the floor over time", "Keep your body in a straight line — don't let your hips sag", "Aim to do this 3x per week and watch your push-up numbers climb"],
+  },
+  {
+    id: "home-push-intermediate",
+    name: "Intermediate Home Push",
+    location: "home",
+    category: "Push",
+    difficulty: "intermediate",
+    duration: "30",
+    description: "Challenging push workout using bodyweight and household items.",
+    exercises: [
+      { name: "Push-Ups", sets: 4, reps: "15-20", restSeconds: 45, notes: "Strict form, full range" },
+      { name: "Decline Push-Ups (Feet on Chair)", sets: 3, reps: "10-12", restSeconds: 45, notes: "Feet elevated to target upper chest" },
+      { name: "Diamond Push-Ups", sets: 3, reps: "10-12", restSeconds: 45, notes: "Hands together under chest, elbows close to body" },
+      { name: "Pike Push-Ups (Feet on Chair)", sets: 3, reps: "8-10", restSeconds: 60, notes: "Hips high, head dips toward floor — shoulder press substitute" },
+      { name: "Sphinx Push-Ups", sets: 3, reps: "8-10", restSeconds: 45, notes: "Start from forearm plank, press up to full plank, lower back down" },
+      { name: "Chair Dips (Legs Straight)", sets: 3, reps: "12-15", restSeconds: 45, notes: "Legs extended for maximum tricep load" },
+    ],
+    tips: ["Elevating your feet turns a standard push-up into a much harder exercise", "Pike push-ups are an excellent overhead press replacement at home", "Add a backpack with books for weighted push-ups when bodyweight is too easy"],
+  },
+
+  // ──────────── PULL (Home) ────────────
+  {
+    id: "home-pull-beginner",
+    name: "Beginner Home Pull",
+    location: "home",
+    category: "Pull",
+    difficulty: "beginner",
+    duration: "25",
+    description: "Creative pulling exercises using household items to target back and biceps.",
+    exercises: [
+      { name: "Towel Rows (Doorknob)", sets: 3, reps: "12-15", restSeconds: 45, notes: "Loop a towel around a doorknob, lean back, pull yourself in" },
+      { name: "Table Inverted Rows", sets: 3, reps: "8-10", restSeconds: 60, notes: "Lie under a sturdy table, grip edge, pull chest to table" },
+      { name: "Resistance Band Pull-Aparts", sets: 3, reps: "15-20", restSeconds: 30, notes: "Arms straight, pull band apart at chest height" },
+      { name: "Prone Y-W-T Raises", sets: 3, reps: "8 of each letter", restSeconds: 30, notes: "Lie face down, raise arms in Y, W, and T shapes" },
+      { name: "Band Bicep Curls", sets: 3, reps: "12-15", restSeconds: 30, notes: "Stand on band, curl handles to shoulders" },
+      { name: "Reverse Snow Angels", sets: 3, reps: "10", restSeconds: 30, notes: "Lie face down, arms sweep from hips to overhead while hovering off floor" },
+    ],
+    tips: ["Pulling is the hardest movement to replicate at home — get creative with household items", "A resistance band set is the single best investment for home pulling exercises", "Towel rows work surprisingly well — lean back further to increase difficulty"],
+  },
+
+  // ──────────── SHOULDERS (Home) ────────────
+  {
+    id: "home-shoulders-beginner",
+    name: "Home Shoulder Workout",
+    location: "home",
+    category: "Shoulders",
+    difficulty: "beginner",
+    duration: "20",
+    description: "Build shoulder strength and stability at home with bodyweight and minimal equipment.",
+    exercises: [
+      { name: "Pike Push-Ups", sets: 3, reps: "8-10", restSeconds: 45, notes: "Hips high in an inverted V — the closer your feet to your hands, the harder it is" },
+      { name: "Lateral Raises (Water Bottles)", sets: 3, reps: "15-20", restSeconds: 30, notes: "Hold filled water bottles, raise to shoulder height" },
+      { name: "Front Raises (Water Bottles)", sets: 3, reps: "12-15", restSeconds: 30, notes: "Raise one arm at a time to eye level" },
+      { name: "Band Shoulder Press", sets: 3, reps: "12-15", restSeconds: 45, notes: "Stand on band, press handles overhead" },
+      { name: "Prone Y-Raises", sets: 3, reps: "12-15", restSeconds: 30, notes: "Lie face down, raise arms in a Y position for rear delts" },
+      { name: "Wall Handstand Hold", sets: 3, reps: "15-20 seconds", restSeconds: 45, notes: "Feet on wall, body vertical — massive shoulder activation" },
+    ],
+    tips: ["Water bottles and cans make surprisingly effective light weights for shoulder exercises", "Shoulders respond well to high reps — lighter weight is fine", "The wall handstand hold is the best bodyweight shoulder exercise there is"],
+  },
+
+  // ──────────── ARMS (Home) ────────────
+  {
+    id: "home-arms-beginner",
+    name: "Home Arm Workout",
+    location: "home",
+    category: "Arms",
+    difficulty: "beginner",
+    duration: "20",
+    description: "Target your biceps and triceps at home using bodyweight and common household items.",
+    exercises: [
+      { name: "Tricep Dips (Chair)", sets: 3, reps: "10-12", restSeconds: 45, notes: "Hands on chair edge behind you, bend elbows to 90 degrees" },
+      { name: "Bicep Curls (Water Bottles or Band)", sets: 3, reps: "15-20", restSeconds: 30, notes: "Use heavy water bottles, cans, or resistance band" },
+      { name: "Diamond Push-Ups", sets: 3, reps: "8-10", restSeconds: 45, notes: "Hands together — tricep focused push-up" },
+      { name: "Towel Curls (Isometric)", sets: 3, reps: "20-30 seconds", restSeconds: 30, notes: "Step on towel, curl up and hold — resist with your foot" },
+      { name: "Close Grip Push-Ups", sets: 3, reps: "10-12", restSeconds: 45, notes: "Hands shoulder width, elbows tight to body for triceps" },
+      { name: "Band Hammer Curls", sets: 3, reps: "12-15", restSeconds: 30, notes: "Stand on band, neutral grip curl" },
+    ],
+    tips: ["Isometric holds (like towel curls) are incredibly effective for building strength at home", "Combine this with a push or pull day for extra arm volume", "Use the heaviest household items you can comfortably lift"],
+  },
+
+  // ──────────── HIIT (Home) ────────────
   {
     id: "home-hiit-beginner",
     name: "Beginner HIIT",
@@ -455,7 +1091,7 @@ export const workoutLibrary: LibraryWorkout[] = [
     tips: ["Push hard during work periods", "Rest 1-2 minutes between rounds", "Scale exercises down if needed — consistency beats intensity"],
   },
 
-  // HOME CORE
+  // ──────────── CORE (Home) ────────────
   {
     id: "home-core-all",
     name: "Home Core Workout",
@@ -476,7 +1112,24 @@ export const workoutLibrary: LibraryWorkout[] = [
     tips: ["Breathe out on the effort", "Don't pull on your neck during crunches", "Can be added to any workout as a finisher"],
   },
 
-  // HOME GLUTES
+  // ──────────── GLUTES (Home) ────────────
+  {
+    id: "home-glutes-beginner",
+    name: "Home Glute Activation",
+    location: "home",
+    category: "Glutes",
+    difficulty: "beginner",
+    duration: "20",
+    description: "Simple, effective glute workout to build a foundation of glute strength and activation.",
+    exercises: [
+      { name: "Glute Bridges", sets: 3, reps: "15-20", restSeconds: 30, notes: "Feet flat, drive through heels, squeeze at top" },
+      { name: "Donkey Kicks", sets: 3, reps: "15 each leg", restSeconds: 20, notes: "On all fours, press foot toward ceiling" },
+      { name: "Fire Hydrants", sets: 3, reps: "15 each leg", restSeconds: 20, notes: "On all fours, lift knee out to the side" },
+      { name: "Bodyweight Sumo Squats", sets: 3, reps: "15-20", restSeconds: 30, notes: "Wide stance, toes out, squeeze glutes at top" },
+      { name: "Lying Side Leg Raises", sets: 3, reps: "15 each leg", restSeconds: 20, notes: "Lie on your side, raise top leg, keep it straight" },
+    ],
+    tips: ["This is perfect as a warm-up before a leg workout or as a standalone session", "Focus on squeezing the glute at the top of every movement", "A resistance band above the knees makes every exercise significantly harder"],
+  },
   {
     id: "home-glutes-intermediate",
     name: "Home Glute Burner",
@@ -495,6 +1148,144 @@ export const workoutLibrary: LibraryWorkout[] = [
       { name: "Banded Walks (Side Steps)", sets: 3, reps: "15 each direction", restSeconds: 20, notes: "Use resistance band if available" },
     ],
     tips: ["Band above knees adds serious resistance", "Focus on squeezing the glutes, not just moving", "Great as a warm-up before leg day too"],
+  },
+
+  // ──────────── CARDIO (Home) ────────────
+  {
+    id: "home-cardio-beginner",
+    name: "Home Cardio Session",
+    location: "home",
+    category: "Cardio",
+    difficulty: "beginner",
+    duration: "20",
+    description: "Get your heart rate up at home with no equipment needed.",
+    exercises: [
+      { name: "Marching in Place", sets: 1, reps: "2 minutes", restSeconds: 30, notes: "Warm up — lift knees high, swing arms" },
+      { name: "Step-Ups (Stairs or Step)", sets: 3, reps: "1 minute", restSeconds: 30, notes: "Alternate leading leg each set" },
+      { name: "Jumping Jacks", sets: 3, reps: "30 seconds", restSeconds: 30, notes: "Full arm extension overhead" },
+      { name: "Speed Skaters", sets: 3, reps: "30 seconds", restSeconds: 30, notes: "Lateral jumps, touch the floor with opposite hand" },
+      { name: "High Knees", sets: 3, reps: "30 seconds", restSeconds: 30, notes: "Drive knees to hip height" },
+      { name: "Shadow Boxing", sets: 3, reps: "30 seconds", restSeconds: 30, notes: "Jab, cross, hook — stay light on feet" },
+    ],
+    tips: ["No equipment needed — just you and some floor space", "Play music to keep yourself motivated and moving", "Aim for a 6-7 out of 10 effort throughout"],
+  },
+  {
+    id: "home-cardio-intermediate",
+    name: "Home Cardio Blast",
+    location: "home",
+    category: "Cardio",
+    difficulty: "intermediate",
+    duration: "30",
+    description: "Higher-intensity home cardio session mixing jump rope, dance moves, and stair work.",
+    exercises: [
+      { name: "Jump Rope (or Pretend Rope)", sets: 3, reps: "2 minutes", restSeconds: 30, notes: "Light bounce on balls of feet, wrists turn the rope" },
+      { name: "Stair Sprints", sets: 4, reps: "30 seconds", restSeconds: 30, notes: "Sprint up stairs, walk down — repeat. Skip if no stairs" },
+      { name: "Lateral Shuffles", sets: 3, reps: "30 seconds", restSeconds: 20, notes: "Low athletic stance, shuffle side to side quickly" },
+      { name: "High Knee Sprints", sets: 3, reps: "30 seconds", restSeconds: 20, notes: "Pump arms, drive knees high, maximum speed" },
+      { name: "Squat to Star Jump", sets: 3, reps: "10", restSeconds: 30, notes: "Deep squat, explode up into a star jump, land soft" },
+      { name: "Cross-Body Mountain Climbers", sets: 3, reps: "20 total", restSeconds: 20, notes: "Drive knee to opposite elbow for extra ab engagement" },
+      { name: "Burpee Broad Jumps", sets: 3, reps: "6-8", restSeconds: 45, notes: "Burpee into a forward jump instead of a vertical jump" },
+    ],
+    tips: ["A jump rope is cheap and gives you one of the best cardio tools available at home", "If you have stairs, stair sprints are incredible for building leg power and cardio", "Keep your effort high — this should feel challenging throughout"],
+  },
+
+  // ──────────── FUNCTIONAL (Home) ────────────
+  {
+    id: "home-functional-beginner",
+    name: "Home Functional Flow",
+    location: "home",
+    category: "Functional",
+    difficulty: "beginner",
+    duration: "25",
+    description: "Animal-inspired movements and crawls that build total-body coordination and mobility.",
+    exercises: [
+      { name: "Bear Crawl", sets: 3, reps: "10 meters forward and back", restSeconds: 45, notes: "Hands and feet on floor, knees hover 2 inches — crawl forward" },
+      { name: "Crab Walk", sets: 3, reps: "10 meters forward and back", restSeconds: 45, notes: "Belly up, hands and feet on floor, walk backward" },
+      { name: "Inchworms", sets: 3, reps: "6-8", restSeconds: 30, notes: "Stand, walk hands out to plank, walk feet to hands, stand up" },
+      { name: "Bodyweight Get-Ups", sets: 3, reps: "3 each side", restSeconds: 45, notes: "Lie flat, stand up without using the same pattern each time" },
+      { name: "Lateral Bear Crawl", sets: 3, reps: "5 meters each direction", restSeconds: 30, notes: "Same as bear crawl but move sideways" },
+      { name: "Deep Squat to Stand", sets: 3, reps: "8-10", restSeconds: 30, notes: "Drop into a deep squat, grab toes, straighten legs, stand up" },
+    ],
+    tips: ["Animal movements build coordination and mobility that machines can not replicate", "Keep movements slow and controlled — the goal is quality, not speed", "These exercises are excellent for warming up before any workout"],
+  },
+  {
+    id: "home-functional-intermediate",
+    name: "Home Functional Athlete",
+    location: "home",
+    category: "Functional",
+    difficulty: "intermediate",
+    duration: "35",
+    description: "Dynamic functional circuit combining animal flow, crawls, and mobility challenges.",
+    exercises: [
+      { name: "Animal Flow Beast to Crab Transition", sets: 3, reps: "6 transitions", restSeconds: 45, notes: "Start in beast (bear crawl position), rotate into crab, rotate back" },
+      { name: "Broad Jumps", sets: 3, reps: "6", restSeconds: 45, notes: "Swing arms, jump as far forward as possible, land softly" },
+      { name: "Scorpion Reach (Prone)", sets: 3, reps: "6 each side", restSeconds: 30, notes: "Lie face down, reach foot across body to opposite hand" },
+      { name: "Single Leg Balance to Reach", sets: 3, reps: "8 each leg", restSeconds: 30, notes: "Stand on one leg, hinge forward and touch floor, return to standing" },
+      { name: "Ape Reach (Deep Squat Walk)", sets: 3, reps: "10 meters", restSeconds: 45, notes: "Deep squat position, walk forward by reaching hands and stepping feet" },
+      { name: "Side Plank Thread-Through", sets: 3, reps: "8 each side", restSeconds: 30, notes: "Side plank, thread top arm under body, rotate back open" },
+      { name: "Jump to Soft Landing (Single Leg)", sets: 3, reps: "5 each leg", restSeconds: 45, notes: "Jump from two feet, land on one foot and hold balance for 3 seconds" },
+    ],
+    tips: ["Functional training at home is arguably better than the gym because of the movement freedom", "These exercises build the athletic qualities that transfer to sports and daily life", "Focus on smooth transitions between movements rather than rushing"],
+  },
+
+  // ──────────── STRETCHING (Home) ────────────
+  {
+    id: "home-stretching-beginner",
+    name: "Morning Stretch Routine",
+    location: "home",
+    category: "Stretching",
+    difficulty: "beginner",
+    duration: "10",
+    description: "Gentle stretching routine to start your day feeling loose and energized.",
+    exercises: [
+      { name: "Neck Rolls", sets: 1, reps: "5 each direction", restSeconds: 0, notes: "Slow, controlled circles — don't force range" },
+      { name: "Shoulder Rolls", sets: 1, reps: "10 forward, 10 back", restSeconds: 0, notes: "Big circles, loosen up the shoulder joint" },
+      { name: "Standing Side Bend", sets: 1, reps: "30 sec each side", restSeconds: 0, notes: "Reach one arm overhead, lean to opposite side" },
+      { name: "Forward Fold", sets: 1, reps: "45 seconds", restSeconds: 0, notes: "Let gravity pull you down, bend knees if needed" },
+      { name: "Cat-Cow (On All Fours)", sets: 1, reps: "10 slow reps", restSeconds: 0, notes: "Alternate between arching and rounding the spine" },
+      { name: "Child's Pose with Side Reach", sets: 1, reps: "30 sec each side", restSeconds: 0, notes: "Walk hands to one side to stretch the lats" },
+      { name: "Lying Knee-to-Chest Hug", sets: 1, reps: "30 sec each leg", restSeconds: 0, notes: "On your back, pull one knee to chest" },
+    ],
+    tips: ["Do this within 10 minutes of waking up for the best start to your day", "Never force a stretch — ease into it and breathe", "This routine pairs well with 5 minutes of deep breathing or meditation"],
+  },
+  {
+    id: "home-stretching-yoga",
+    name: "Yoga-Inspired Flexibility Flow",
+    location: "home",
+    category: "Stretching",
+    difficulty: "intermediate",
+    duration: "25",
+    description: "Yoga-inspired stretching routine targeting tight hips, hamstrings, and shoulders.",
+    exercises: [
+      { name: "Downward Dog", sets: 2, reps: "30 seconds", restSeconds: 0, notes: "Press heels toward floor, push chest toward thighs" },
+      { name: "Low Lunge (Runner's Lunge)", sets: 2, reps: "30 sec each side", restSeconds: 0, notes: "Rear knee on ground, sink hips forward for hip flexor stretch" },
+      { name: "Seated Forward Fold", sets: 2, reps: "30 seconds", restSeconds: 0, notes: "Legs straight, reach for toes — hinge at hips, don't round back" },
+      { name: "Supine Spinal Twist", sets: 1, reps: "45 sec each side", restSeconds: 0, notes: "On back, cross one knee over body, look in opposite direction" },
+      { name: "Pigeon Pose", sets: 1, reps: "45 sec each side", restSeconds: 0, notes: "Front shin across body, sink hips — deep hip opener" },
+      { name: "Thread the Needle (Thoracic)", sets: 2, reps: "8 each side", restSeconds: 0, notes: "On all fours, thread one arm under the body, rotate torso" },
+      { name: "Reclined Butterfly (Supta Baddha Konasana)", sets: 1, reps: "60 seconds", restSeconds: 0, notes: "On back, soles of feet together, let knees fall open" },
+      { name: "Corpse Pose (Savasana)", sets: 1, reps: "2 minutes", restSeconds: 0, notes: "Lie flat, close eyes, breathe deeply and relax completely" },
+    ],
+    tips: ["Hold each position and breathe deeply — in through the nose, out through the mouth", "Flexibility improves gradually over weeks and months — be patient", "This routine is excellent before bed to improve sleep quality"],
+  },
+  {
+    id: "home-stretching-recovery",
+    name: "Post-Workout Recovery Stretch",
+    location: "home",
+    category: "Stretching",
+    difficulty: "beginner",
+    duration: "12",
+    description: "Quick targeted stretches to cool down after a home workout and reduce next-day soreness.",
+    exercises: [
+      { name: "Quad Stretch (Standing)", sets: 1, reps: "30 sec each leg", restSeconds: 0, notes: "Hold foot behind you, knees together, stand tall" },
+      { name: "Hamstring Stretch (Seated)", sets: 1, reps: "30 sec each leg", restSeconds: 0, notes: "One leg straight, reach for toes, keep back flat" },
+      { name: "Hip Flexor Stretch (Half Kneeling)", sets: 1, reps: "30 sec each side", restSeconds: 0, notes: "Rear knee on floor, push hips forward gently" },
+      { name: "Chest Stretch (Clasped Hands Behind Back)", sets: 1, reps: "30 seconds", restSeconds: 0, notes: "Clasp hands behind you, lift arms, squeeze shoulder blades" },
+      { name: "Tricep Stretch (Overhead)", sets: 1, reps: "20 sec each arm", restSeconds: 0, notes: "Reach hand behind head, gently push elbow with other hand" },
+      { name: "Figure-4 Glute Stretch (Lying)", sets: 1, reps: "30 sec each side", restSeconds: 0, notes: "On back, cross ankle over opposite knee, pull thigh toward chest" },
+      { name: "Child's Pose", sets: 1, reps: "45 seconds", restSeconds: 0, notes: "Relax everything — deep breaths" },
+    ],
+    tips: ["Always stretch after workouts when your muscles are warm", "Hold each stretch at a comfortable intensity — never push through sharp pain", "Consistent post-workout stretching significantly reduces delayed onset muscle soreness"],
   },
 ];
 
