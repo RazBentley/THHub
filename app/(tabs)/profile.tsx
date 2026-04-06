@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Image, Linking } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Image, Linking, TextInput } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
@@ -8,6 +8,7 @@ import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '../../context/AuthContext';
 import { db, storage } from '../../lib/firebase';
+import { OnboardingInfo } from '../../types';
 import { Button } from '../../components/ui/Button';
 import { colors, spacing, fontSize, borderRadius, shadows, gradients } from '../../components/ui/theme';
 import { scheduleWeeklyCheckIn, getDayNumber } from '../../lib/notifications';
@@ -130,6 +131,9 @@ export default function ProfileScreen() {
         </View>
       </View>
 
+      {/* About Me */}
+      {!isOwner && <AboutMeSection />}
+
       {/* Appearance */}
       <View style={[styles.section, shadows.sm]}>
         <View style={styles.sectionHeader}>
@@ -244,6 +248,110 @@ export default function ProfileScreen() {
     </ScrollView>
   );
 }
+
+function AboutMeSection() {
+  const { profile } = useAuth();
+  const [expanded, setExpanded] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  const existing = profile?.onboarding || {};
+  const [mainGoal, setMainGoal] = useState(existing.mainGoal || '');
+  const [motivation, setMotivation] = useState(existing.motivation || '');
+  const [experience, setExperience] = useState(existing.experience || '');
+  const [trainingDays, setTrainingDays] = useState(existing.trainingDays || '');
+  const [healthConditions, setHealthConditions] = useState(existing.healthConditions || '');
+  const [dietaryRequirements, setDietaryRequirements] = useState(existing.dietaryRequirements || '');
+  const [additionalNotes, setAdditionalNotes] = useState(existing.additionalNotes || '');
+
+  const hasInfo = existing.mainGoal || existing.motivation || existing.experience;
+
+  const handleSave = async () => {
+    if (!profile) return;
+    setSaving(true);
+    try {
+      const onboarding: OnboardingInfo = {
+        mainGoal: mainGoal || undefined,
+        motivation: motivation || undefined,
+        experience: experience || undefined,
+        trainingDays: trainingDays || undefined,
+        healthConditions: healthConditions || undefined,
+        dietaryRequirements: dietaryRequirements || undefined,
+        additionalNotes: additionalNotes || undefined,
+        completedAt: Date.now(),
+      };
+      await updateDoc(doc(db, 'users', profile.uid), { onboarding });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    } catch { /* silent */ }
+    finally { setSaving(false); }
+  };
+
+  const AboutField = ({ label, value, onChangeText, placeholder, multiline }: {
+    label: string; value: string; onChangeText: (v: string) => void; placeholder: string; multiline?: boolean;
+  }) => (
+    <View style={{ marginBottom: spacing.md }}>
+      <Text style={{ color: colors.textSecondary, fontSize: fontSize.sm, fontWeight: '600', marginBottom: 4 }}>{label}</Text>
+      <TextInput
+        style={{ backgroundColor: colors.inputBackground, borderRadius: borderRadius.sm, padding: spacing.sm, color: colors.text, fontSize: fontSize.sm, borderWidth: 1, borderColor: colors.border, ...(multiline ? { minHeight: 70, textAlignVertical: 'top' as const } : {}) }}
+        value={value}
+        onChangeText={onChangeText}
+        placeholder={placeholder}
+        placeholderTextColor={colors.textMuted}
+        multiline={multiline}
+      />
+    </View>
+  );
+
+  return (
+    <View style={[aboutStyles.container, shadows.sm]}>
+      <TouchableOpacity style={aboutStyles.header} onPress={() => setExpanded(!expanded)} activeOpacity={0.7}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
+          <Ionicons name="person-circle" size={20} color={colors.primary} />
+          <Text style={aboutStyles.title}>About Me</Text>
+          {!hasInfo && (
+            <View style={{ backgroundColor: colors.accent + '30', paddingHorizontal: spacing.sm, paddingVertical: 2, borderRadius: borderRadius.full }}>
+              <Text style={{ color: colors.accent, fontSize: fontSize.xs, fontWeight: '700' }}>Not filled in</Text>
+            </View>
+          )}
+        </View>
+        <Ionicons name={expanded ? 'chevron-up' : 'chevron-down'} size={18} color={colors.textMuted} />
+      </TouchableOpacity>
+
+      {expanded && (
+        <View style={aboutStyles.body}>
+          <Text style={{ color: colors.textMuted, fontSize: fontSize.xs, marginBottom: spacing.md }}>
+            This info helps your coach create the best plan for you.
+          </Text>
+          <AboutField label="Main Goal" value={mainGoal} onChangeText={setMainGoal} placeholder="e.g. Lose weight, build muscle" />
+          <AboutField label="What's Driving You?" value={motivation} onChangeText={setMotivation} placeholder="e.g. Health, confidence, holiday" />
+          <AboutField label="Training Experience" value={experience} onChangeText={setExperience} placeholder="e.g. Beginner, intermediate" />
+          <AboutField label="Training Days per Week" value={trainingDays} onChangeText={setTrainingDays} placeholder="e.g. 4 days" />
+          <AboutField label="Injuries or Health Conditions" value={healthConditions} onChangeText={setHealthConditions} placeholder="e.g. Bad knee — or 'none'" multiline />
+          <AboutField label="Dietary Requirements" value={dietaryRequirements} onChangeText={setDietaryRequirements} placeholder="e.g. Vegetarian — or 'none'" multiline />
+          <AboutField label="Anything Else for Your Coach" value={additionalNotes} onChangeText={setAdditionalNotes} placeholder="Schedule, preferences..." multiline />
+          <TouchableOpacity
+            style={{ backgroundColor: colors.primary, borderRadius: borderRadius.md, paddingVertical: spacing.sm + 2, alignItems: 'center', opacity: saving ? 0.5 : 1 }}
+            onPress={handleSave}
+            disabled={saving}
+            activeOpacity={0.8}
+          >
+            <Text style={{ color: '#fff', fontWeight: '700', fontSize: fontSize.md }}>
+              {saved ? 'Saved!' : saving ? 'Saving...' : 'Save'}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      )}
+    </View>
+  );
+}
+
+const aboutStyles = StyleSheet.create({
+  container: { backgroundColor: colors.surface, borderRadius: borderRadius.lg, marginHorizontal: spacing.md, marginBottom: spacing.md, overflow: 'hidden' },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: spacing.md },
+  title: { color: colors.text, fontSize: fontSize.md, fontWeight: '700' },
+  body: { borderTopWidth: 1, borderTopColor: colors.border, padding: spacing.md },
+});
 
 const styles = StyleSheet.create({
   container: {
