@@ -14,9 +14,7 @@
       }
     },
     "production": {
-      "ios": {
-        "image": "macos-sonoma-14.5-xcode-15.4"
-      },
+      "ios": {},
       "env": {
         "NO_FLIPPER": "1"
       }
