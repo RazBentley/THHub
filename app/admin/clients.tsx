@@ -171,6 +171,47 @@ export default function ClientsScreen() {
               <Text style={styles.joinDate}>
                 Joined: {new Date(item.createdAt).toLocaleDateString('en-GB')}
               </Text>
+
+              {/* About Me / Onboarding Info */}
+              {item.onboarding && (item.onboarding.mainGoal || item.onboarding.motivation || item.onboarding.experience) ? (
+                <View style={{ marginTop: spacing.sm, paddingTop: spacing.sm, borderTopWidth: 1, borderTopColor: colors.border }}>
+                  <Text style={{ color: colors.textMuted, fontSize: fontSize.xs, fontWeight: '700', marginBottom: 4 }}>ABOUT</Text>
+                  {item.onboarding.mainGoal && (
+                    <Text style={{ color: colors.textSecondary, fontSize: fontSize.xs, marginBottom: 2 }}>
+                      <Text style={{ color: colors.textMuted }}>Goal: </Text>{item.onboarding.mainGoal}
+                    </Text>
+                  )}
+                  {item.onboarding.motivation && (
+                    <Text style={{ color: colors.textSecondary, fontSize: fontSize.xs, marginBottom: 2 }}>
+                      <Text style={{ color: colors.textMuted }}>Why: </Text>{item.onboarding.motivation}
+                    </Text>
+                  )}
+                  {item.onboarding.experience && (
+                    <Text style={{ color: colors.textSecondary, fontSize: fontSize.xs, marginBottom: 2 }}>
+                      <Text style={{ color: colors.textMuted }}>Experience: </Text>{item.onboarding.experience}
+                    </Text>
+                  )}
+                  {item.onboarding.trainingDays && (
+                    <Text style={{ color: colors.textSecondary, fontSize: fontSize.xs, marginBottom: 2 }}>
+                      <Text style={{ color: colors.textMuted }}>Training: </Text>{item.onboarding.trainingDays}/week
+                    </Text>
+                  )}
+                  {item.onboarding.healthConditions && (
+                    <Text style={{ color: colors.textSecondary, fontSize: fontSize.xs, marginBottom: 2 }}>
+                      <Text style={{ color: colors.textMuted }}>Health: </Text>{item.onboarding.healthConditions}
+                    </Text>
+                  )}
+                  {item.onboarding.dietaryRequirements && (
+                    <Text style={{ color: colors.textSecondary, fontSize: fontSize.xs }}>
+                      <Text style={{ color: colors.textMuted }}>Diet: </Text>{item.onboarding.dietaryRequirements}
+                    </Text>
+                  )}
+                </View>
+              ) : (
+                <View style={{ marginTop: spacing.sm, paddingTop: spacing.sm, borderTopWidth: 1, borderTopColor: colors.border }}>
+                  <Text style={{ color: colors.textMuted, fontSize: fontSize.xs, fontStyle: 'italic' }}>No about info yet</Text>
+                </View>
+              )}
             </TouchableOpacity>
           )}
           ListEmptyComponent={
