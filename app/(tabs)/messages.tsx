@@ -30,6 +30,11 @@ export default function MessagesScreen() {
       chatList.sort((a, b) => (b.lastMessageTime || 0) - (a.lastMessageTime || 0));
       setChats(chatList);
       setLoading(false);
+
+      // Auto-create chat with coach for clients with no chats
+      if (!isOwner && chatList.length === 0) {
+        autoCreateChat();
+      }
     }, (error) => {
       console.error('Chat query error:', error);
       setLoading(false);
@@ -37,6 +42,23 @@ export default function MessagesScreen() {
 
     return unsubscribe;
   }, [profile]);
+
+  const autoCreateChat = async () => {
+    if (!profile || isOwner) return;
+    try {
+      const ownerQuery = query(collection(db, 'users'), where('role', '==', 'owner'));
+      const ownerSnap = await getDocs(ownerQuery);
+      if (ownerSnap.empty) return;
+      const ownerDoc = ownerSnap.docs[0];
+      await addDoc(collection(db, 'chats'), {
+        participants: [ownerDoc.id, profile.uid],
+        clientName: profile.name,
+        lastMessage: '',
+        lastMessageTime: Date.now(),
+        unreadCount: 0,
+      });
+    } catch { /* silent */ }
+  };
 
   const startNewChat = async () => {
     // For clients: create or find chat with owner

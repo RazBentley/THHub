@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import {
-  View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Alert, Switch,
+  View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Alert, Switch, Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Stack, router } from 'expo-router';
 import { doc, setDoc } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '../context/AuthContext';
-import { db } from '../lib/firebase';
+import { db, storage } from '../lib/firebase';
 import { colors, spacing, fontSize, borderRadius, shadows } from '../components/ui/theme';
 
 function getWeekId(): string {
@@ -42,6 +44,38 @@ export default function CheckInScreen() {
   const [wins, setWins] = useState('');
   const [goalsNextWeek, setGoalsNextWeek] = useState('');
 
+  // Progress photos (optional)
+  const [photos, setPhotos] = useState<Record<string, string>>({});
+
+  const pickPhoto = async (angle: string) => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      quality: 0.7,
+    });
+    if (!result.canceled && result.assets[0]) {
+      setPhotos(prev => ({ ...prev, [angle]: result.assets[0].uri }));
+    }
+  };
+
+  const uploadPhotos = async (): Promise<Record<string, string>> => {
+    if (!profile) return {};
+    const urls: Record<string, string> = {};
+    const weekId = getWeekId();
+    for (const angle of ['front', 'side', 'back']) {
+      const uri = photos[angle];
+      if (!uri) continue;
+      try {
+        const resp = await fetch(uri);
+        const blob = await resp.blob();
+        const path = `check-in-photos/${profile.uid}/${weekId}/${angle}.jpg`;
+        const storageRef = ref(storage, path);
+        await uploadBytes(storageRef, blob);
+        urls[`${angle}PhotoUrl`] = await getDownloadURL(storageRef);
+      } catch { /* silent */ }
+    }
+    return urls;
+  };
+
   const handleSubmit = async () => {
     if (!profile) return;
     if (!weightCurrent.trim()) {
@@ -53,6 +87,9 @@ export default function CheckInScreen() {
     const weekId = getWeekId();
 
     try {
+      // Upload photos if any
+      const photoUrls = Object.keys(photos).length > 0 ? await uploadPhotos() : {};
+
       await setDoc(doc(db, 'users', profile.uid, 'checkIns', weekId), {
         submittedAt: Date.now(),
         weekId,
@@ -63,7 +100,14 @@ export default function CheckInScreen() {
         adherence, cheatMeal,
         questions, otherNotes,
         wins, goalsNextWeek,
+        ...photoUrls,
       });
+
+      // Also save to progressPhotos for the photos screen
+      if (Object.keys(photoUrls).length > 0) {
+        const today = new Date().toISOString().split('T')[0];
+        await setDoc(doc(db, 'users', profile.uid, 'progressPhotos', today), { date: today, ...photoUrls });
+      }
 
       Alert.alert(
         'Check-In Submitted!',
@@ -142,6 +186,31 @@ export default function CheckInScreen() {
         <SectionHeader icon="star" color={colors.warning} title="Reflection" />
         <FormField label="Wins & Positives (big or small!)" value={wins} onChange={setWins} placeholder="What went well this week?" multiline />
         <FormField label="Goals for the Coming Week" value={goalsNextWeek} onChange={setGoalsNextWeek} placeholder="What do you want to achieve?" multiline />
+
+        {/* Progress Photos (Optional) */}
+        <SectionHeader icon="camera" color={colors.primary} title="Progress Photos (Optional)" />
+        <Text style={{ color: colors.textMuted, fontSize: fontSize.xs, marginBottom: spacing.sm, marginTop: -spacing.sm }}>
+          Upload front, side, and back photos to track your transformation.
+        </Text>
+        <View style={{ flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.lg }}>
+          {(['front', 'side', 'back'] as const).map((angle) => (
+            <TouchableOpacity
+              key={angle}
+              style={{ flex: 1, aspectRatio: 3/4, borderRadius: borderRadius.md, overflow: 'hidden', backgroundColor: colors.surfaceLight, borderWidth: 2, borderColor: photos[angle] ? colors.primary : colors.border, borderStyle: photos[angle] ? 'solid' : 'dashed', justifyContent: 'center', alignItems: 'center' }}
+              onPress={() => pickPhoto(angle)}
+              activeOpacity={0.7}
+            >
+              {photos[angle] ? (
+                <Image source={{ uri: photos[angle] }} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
+              ) : (
+                <>
+                  <Ionicons name="cloud-upload-outline" size={24} color={colors.textMuted} />
+                  <Text style={{ color: colors.textMuted, fontSize: fontSize.xs, marginTop: 4, textTransform: 'capitalize' }}>{angle}</Text>
+                </>
+              )}
+            </TouchableOpacity>
+          ))}
+        </View>
 
         {/* Submit */}
         <TouchableOpacity

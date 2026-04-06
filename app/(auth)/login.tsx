@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Image, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Image, KeyboardAvoidingView, Platform, TouchableOpacity, Alert } from 'react-native';
 import { Link, router } from 'expo-router';
+import { sendPasswordResetEmail } from 'firebase/auth';
 import { useAuth } from '../../context/AuthContext';
+import { auth } from '../../lib/firebase';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { colors, spacing, fontSize, borderRadius } from '../../components/ui/theme';
@@ -81,6 +83,24 @@ export default function LoginScreen() {
             loading={loading}
             style={{ marginTop: spacing.md }}
           />
+
+          <TouchableOpacity
+            onPress={async () => {
+              if (!email.trim()) {
+                Alert.alert('Enter Email', 'Please enter your email address first, then tap Forgot Password.');
+                return;
+              }
+              try {
+                await sendPasswordResetEmail(auth, email);
+                Alert.alert('Email Sent', 'Check your inbox for a password reset link.');
+              } catch {
+                Alert.alert('Error', 'Could not send reset email. Check your email address.');
+              }
+            }}
+            style={{ alignSelf: 'center', marginTop: spacing.md }}
+          >
+            <Text style={styles.link}>Forgot your password?</Text>
+          </TouchableOpacity>
 
           <View style={styles.footer}>
             <Text style={styles.footerText}>Don't have an account? </Text>

@@ -1,18 +1,23 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, Alert } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, Alert, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, router } from 'expo-router';
-import { collection, query, where, getDocs, doc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { collection, query, where, getDocs, doc, updateDoc, deleteDoc, getDoc } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
-import { UserProfile } from '../../types';
+import { UserProfile, Subscription } from '../../types';
 import { colors, spacing, fontSize, borderRadius } from '../../components/ui/theme';
 
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
+interface ClientWithStatus extends UserProfile {
+  subscriptionStatus: string;
+}
+
 export default function ClientsScreen() {
-  const [clients, setClients] = useState<UserProfile[]>([]);
+  const [clients, setClients] = useState<ClientWithStatus[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState<'all' | 'active' | 'new' | 'inactive'>('all');
 
   useEffect(() => {
     loadClients();
@@ -23,9 +28,18 @@ export default function ClientsScreen() {
       const snap = await getDocs(
         query(collection(db, 'users'), where('role', '==', 'client'))
       );
-      const list: UserProfile[] = [];
-      snap.forEach((doc) => list.push(doc.data() as UserProfile));
-      list.sort((a, b) => a.name.localeCompare(b.name));
+      const list: ClientWithStatus[] = await Promise.all(
+        snap.docs.map(async (d) => {
+          const client = d.data() as UserProfile;
+          let subscriptionStatus = 'none';
+          try {
+            const subDoc = await getDoc(doc(db, 'users', client.uid, 'subscription', 'current'));
+            if (subDoc.exists()) subscriptionStatus = (subDoc.data() as Subscription).status;
+          } catch { /* silent */ }
+          return { ...client, subscriptionStatus };
+        })
+      );
+      list.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
       setClients(list);
     } catch (err) {
       Alert.alert('Error', 'Failed to load clients');
@@ -45,10 +59,31 @@ export default function ClientsScreen() {
     }
   };
 
-  const filteredClients = clients.filter((c) =>
-    c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    c.email.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredClients = clients.filter((c) => {
+    const matchesSearch = c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      c.email.toLowerCase().includes(searchQuery.toLowerCase());
+    if (!matchesSearch) return false;
+    if (filter === 'active') return c.subscriptionStatus === 'active';
+    if (filter === 'new') return c.subscriptionStatus === 'none' || c.subscriptionStatus === 'inactive';
+    if (filter === 'inactive') return c.subscriptionStatus === 'past_due' || c.subscriptionStatus === 'cancelled';
+    return true;
+  });
+
+  const activeCount = clients.filter(c => c.subscriptionStatus === 'active').length;
+  const newCount = clients.filter(c => c.subscriptionStatus === 'none' || c.subscriptionStatus === 'inactive').length;
+
+  const getStatusColor = (status: string) => {
+    if (status === 'active') return colors.success;
+    if (status === 'past_due') return '#ffd166';
+    if (status === 'cancelled') return colors.error;
+    return colors.accent;
+  };
+  const getStatusLabel = (status: string) => {
+    if (status === 'active') return 'Active';
+    if (status === 'past_due') return 'Past Due';
+    if (status === 'cancelled') return 'Cancelled';
+    return 'New';
+  };
 
   return (
     <>
@@ -65,6 +100,24 @@ export default function ClientsScreen() {
           />
         </View>
 
+        {/* Filter tabs */}
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: spacing.sm }}>
+          {([
+            { key: 'all', label: `All (${clients.length})` },
+            { key: 'active', label: `Active (${activeCount})` },
+            { key: 'new', label: `New (${newCount})` },
+            { key: 'inactive', label: 'Inactive' },
+          ] as const).map((tab) => (
+            <TouchableOpacity
+              key={tab.key}
+              onPress={() => setFilter(tab.key)}
+              style={{ paddingHorizontal: spacing.md, paddingVertical: spacing.sm, borderRadius: borderRadius.full, backgroundColor: filter === tab.key ? colors.primary : colors.surface, marginRight: spacing.xs }}
+            >
+              <Text style={{ color: filter === tab.key ? '#fff' : colors.textMuted, fontSize: fontSize.sm, fontWeight: '700' }}>{tab.label}</Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+
         <Text style={styles.count}>{filteredClients.length} client{filteredClients.length !== 1 ? 's' : ''}</Text>
 
         <FlatList
@@ -78,7 +131,12 @@ export default function ClientsScreen() {
                   <Text style={styles.avatarText}>{item.name.charAt(0).toUpperCase()}</Text>
                 </View>
                 <View style={{ flex: 1 }}>
-                  <Text style={styles.clientName}>{item.name}</Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
+                    <Text style={styles.clientName}>{item.name}</Text>
+                    <View style={{ backgroundColor: getStatusColor(item.subscriptionStatus) + '30', paddingHorizontal: spacing.sm, paddingVertical: 2, borderRadius: borderRadius.full }}>
+                      <Text style={{ color: getStatusColor(item.subscriptionStatus), fontSize: fontSize.xs, fontWeight: '700' }}>{getStatusLabel(item.subscriptionStatus)}</Text>
+                    </View>
+                  </View>
                   <Text style={styles.clientEmail}>{item.email}</Text>
                 </View>
                 {/* Navigates to the chat list rather than a specific chat because

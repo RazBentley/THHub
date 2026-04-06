@@ -127,6 +127,9 @@ export interface WeeklyCheckIn {
   otherNotes: string;
   wins: string;
   goalsNextWeek: string;
+  frontPhotoUrl?: string;
+  sidePhotoUrl?: string;
+  backPhotoUrl?: string;
 }
 
 // Cardio & Steps
@@ -159,10 +162,16 @@ export interface WorkoutProgramme {
   updatedAt: number;
 }
 
+export interface ExerciseLog {
+  weight?: string;
+  notes?: string;
+}
+
 export interface WorkoutProgress {
   date: string;
   dayLabel: string;
   exercisesCompleted: boolean[];
+  exerciseLogs?: ExerciseLog[];
   completedAt?: number;
 }
 

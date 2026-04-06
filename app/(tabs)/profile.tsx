@@ -4,8 +4,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { doc, updateDoc } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '../../context/AuthContext';
-import { db } from '../../lib/firebase';
+import { db, storage } from '../../lib/firebase';
 import { Button } from '../../components/ui/Button';
 import { colors, spacing, fontSize, borderRadius, shadows, gradients } from '../../components/ui/theme';
 import { scheduleWeeklyCheckIn, getDayNumber } from '../../lib/notifications';
@@ -17,6 +19,31 @@ export default function ProfileScreen() {
   const { profile, isOwner, signOut } = useAuth();
   const { mode, toggleTheme, isDark } = useTheme();
   const [selectedDay, setSelectedDay] = useState(profile?.checkInDay || 'Monday');
+  const [photoURL, setPhotoURL] = useState(profile?.photoURL || '');
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+
+  const handlePhotoUpload = async () => {
+    if (!profile) return;
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.7,
+    });
+    if (result.canceled || !result.assets[0]) return;
+    setUploadingPhoto(true);
+    try {
+      const resp = await fetch(result.assets[0].uri);
+      const blob = await resp.blob();
+      const path = `profile-photos/${profile.uid}/avatar.jpg`;
+      const storageRef = ref(storage, path);
+      await uploadBytes(storageRef, blob);
+      const url = await getDownloadURL(storageRef);
+      await updateDoc(doc(db, 'users', profile.uid), { photoURL: url });
+      setPhotoURL(url);
+    } catch { /* silent */ }
+    finally { setUploadingPhoto(false); }
+  };
 
   const handleDayChange = async (day: string) => {
     setSelectedDay(day);
@@ -46,18 +73,25 @@ export default function ProfileScreen() {
         colors={[colors.primary + '30', colors.accent + '10', 'transparent']}
         style={styles.headerGradient}
       >
-        <View style={styles.avatarRing}>
-          <LinearGradient
-            colors={[colors.primary, colors.accent]}
-            style={styles.avatarGradient}
-          >
-            <View style={styles.avatar}>
-              <Text style={styles.avatarText}>
-                {profile?.name?.charAt(0).toUpperCase() || '?'}
-              </Text>
-            </View>
-          </LinearGradient>
-        </View>
+        <TouchableOpacity onPress={handlePhotoUpload} activeOpacity={0.8} style={styles.avatarRing}>
+          {photoURL ? (
+            <Image source={{ uri: photoURL }} style={{ width: 80, height: 80, borderRadius: 40 }} />
+          ) : (
+            <LinearGradient
+              colors={[colors.primary, colors.accent]}
+              style={styles.avatarGradient}
+            >
+              <View style={styles.avatar}>
+                <Text style={styles.avatarText}>
+                  {profile?.name?.charAt(0).toUpperCase() || '?'}
+                </Text>
+              </View>
+            </LinearGradient>
+          )}
+          <View style={{ position: 'absolute', bottom: 0, right: 0, backgroundColor: colors.primary, borderRadius: 12, width: 24, height: 24, justifyContent: 'center', alignItems: 'center' }}>
+            <Ionicons name={uploadingPhoto ? 'hourglass' : 'camera'} size={12} color="#fff" />
+          </View>
+        </TouchableOpacity>
         <Text style={styles.name}>{profile?.name}</Text>
         <Text style={styles.email}>{profile?.email}</Text>
         <View style={styles.roleBadge}>
