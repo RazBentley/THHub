@@ -1,16 +1,22 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput,
-  ActivityIndicator, Modal,
+  ActivityIndicator, Modal, Alert, FlatList,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Stack } from 'expo-router';
+import { collection, getDocs, query, where, doc, setDoc } from 'firebase/firestore';
 import { suggestWorkoutWithAI, AIWorkoutResult } from '../lib/ai';
 import { searchWorkouts, WORKOUT_CATEGORIES, LibraryWorkout } from '../lib/workoutLibrary';
 import { getExerciseInfo, ExerciseInfo } from '../lib/exerciseDatabase';
+import { useAuth } from '../context/AuthContext';
+import { db } from '../lib/firebase';
+import { UserProfile, WorkoutProgramme } from '../types';
 import { colors, spacing, fontSize, borderRadius, shadows } from '../components/ui/theme';
 
 export default function WorkoutIdeasScreen() {
+  const { isOwner } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [location, setLocation] = useState<'gym' | 'home'>('gym');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -22,6 +28,44 @@ export default function WorkoutIdeasScreen() {
 
   // Exercise info modal
   const [exerciseModal, setExerciseModal] = useState<ExerciseInfo & { name: string } | null>(null);
+
+  // Coach: assign to client
+  const [showAssign, setShowAssign] = useState(false);
+  const [assignWorkout, setAssignWorkout] = useState<{ name: string; exercises: any[] } | null>(null);
+  const [clients, setClients] = useState<UserProfile[]>([]);
+  const [selectedClient, setSelectedClient] = useState('');
+  const [assigning, setAssigning] = useState(false);
+
+  const openAssign = (workout: { name: string; exercises: any[] }) => {
+    setAssignWorkout(workout);
+    setSelectedClient('');
+    setShowAssign(true);
+    if (clients.length === 0) {
+      getDocs(query(collection(db, 'users'), where('role', '==', 'client')))
+        .then(snap => setClients(snap.docs.map(d => d.data() as UserProfile).sort((a, b) => a.name.localeCompare(b.name))))
+        .catch(() => {});
+    }
+  };
+
+  const assignToClient = async () => {
+    if (!selectedClient || !assignWorkout) return;
+    setAssigning(true);
+    try {
+      const programme: WorkoutProgramme = {
+        name: assignWorkout.name,
+        days: [{ label: assignWorkout.name, exercises: assignWorkout.exercises }],
+        notes: ['Assigned from Workout Ideas'],
+        updatedAt: Date.now(),
+      };
+      await setDoc(doc(db, 'users', selectedClient, 'workoutProgramme', 'current'), programme);
+      Alert.alert('Sent!', `${assignWorkout.name} has been assigned.`);
+      setShowAssign(false);
+    } catch {
+      Alert.alert('Error', 'Failed to assign programme.');
+    } finally {
+      setAssigning(false);
+    }
+  };
 
   // Filter workouts from local library
   const filteredWorkouts = useMemo(() => {
@@ -306,6 +350,15 @@ export default function WorkoutIdeasScreen() {
                             ))}
                           </View>
                         )}
+                        {isOwner && (
+                          <TouchableOpacity
+                            style={{ backgroundColor: colors.primary, borderRadius: borderRadius.md, paddingVertical: spacing.sm + 2, alignItems: 'center', marginTop: spacing.md }}
+                            onPress={() => openAssign({ name: workout.name, exercises: workout.exercises })}
+                            activeOpacity={0.8}
+                          >
+                            <Text style={{ color: '#fff', fontWeight: '700', fontSize: fontSize.sm }}>Assign to Client</Text>
+                          </TouchableOpacity>
+                        )}
                       </View>
                     )}
                   </View>
@@ -362,6 +415,46 @@ export default function WorkoutIdeasScreen() {
               activeOpacity={0.7}
             >
               <Text style={styles.modalCloseBtnText}>Got it</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Assign to Client Modal */}
+      <Modal visible={showAssign} transparent animationType="fade" onRequestClose={() => setShowAssign(false)}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Assign to Client</Text>
+              <TouchableOpacity onPress={() => setShowAssign(false)}>
+                <Ionicons name="close" size={22} color={colors.textMuted} />
+              </TouchableOpacity>
+            </View>
+            <Text style={{ color: colors.textSecondary, fontSize: fontSize.sm, marginBottom: spacing.md }}>
+              Assign "{assignWorkout?.name}" ({assignWorkout?.exercises.length} exercises) as a client's workout programme.
+            </Text>
+            <Text style={{ color: colors.textMuted, fontSize: fontSize.xs, marginBottom: spacing.sm }}>Select Client</Text>
+            <ScrollView style={{ maxHeight: 200, marginBottom: spacing.md }}>
+              {clients.map((c) => (
+                <TouchableOpacity
+                  key={c.uid}
+                  style={{ flexDirection: 'row', alignItems: 'center', padding: spacing.sm, borderRadius: borderRadius.sm, backgroundColor: selectedClient === c.uid ? colors.primary + '20' : 'transparent', marginBottom: spacing.xs }}
+                  onPress={() => setSelectedClient(c.uid)}
+                >
+                  <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: selectedClient === c.uid ? colors.primary : colors.surfaceLight, justifyContent: 'center', alignItems: 'center', marginRight: spacing.sm }}>
+                    <Text style={{ color: selectedClient === c.uid ? '#fff' : colors.textMuted, fontWeight: '700', fontSize: fontSize.sm }}>{c.name.charAt(0)}</Text>
+                  </View>
+                  <Text style={{ color: selectedClient === c.uid ? colors.primary : colors.text, fontWeight: '600', fontSize: fontSize.sm }}>{c.name}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+            <Text style={{ color: colors.warning, fontSize: fontSize.xs, marginBottom: spacing.md }}>This will replace the client's current programme.</Text>
+            <TouchableOpacity
+              style={{ backgroundColor: colors.primary, borderRadius: borderRadius.md, paddingVertical: spacing.sm + 2, alignItems: 'center', opacity: assigning || !selectedClient ? 0.5 : 1 }}
+              onPress={assignToClient}
+              disabled={assigning || !selectedClient}
+            >
+              <Text style={{ color: '#fff', fontWeight: '700', fontSize: fontSize.md }}>{assigning ? 'Sending...' : 'Assign Programme'}</Text>
             </TouchableOpacity>
           </View>
         </View>
