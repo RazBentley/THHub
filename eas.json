@@ -15,10 +15,7 @@
     },
     "production": {
       "env": {
-        "EXPO_NO_TURBO_MODULE": "1"
-      },
-      "ios": {
-        "newArchEnabled": false
+        "NO_FLIPPER": "1"
       }
     }
   },
