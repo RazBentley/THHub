@@ -13,7 +13,14 @@
         "simulator": true
       }
     },
-    "production": {}
+    "production": {
+      "env": {
+        "EXPO_NO_TURBO_MODULE": "1"
+      },
+      "ios": {
+        "newArchEnabled": false
+      }
+    }
   },
   "submit": {
     "production": {}
