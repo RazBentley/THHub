@@ -19,7 +19,7 @@ const usdaClient = axios.create({
 // Open Food Facts for barcode lookups + extra branded products
 const offClient = axios.create({
   baseURL: 'https://world.openfoodfacts.org',
-  headers: { 'User-Agent': 'THHub/1.0.0 (contact@thtraining.com)' },
+  headers: { 'User-Agent': 'THHub/1.0.0 (contact@thhub.co.uk)' },
 });
 
 // Common whole foods for instant results (per 100g)

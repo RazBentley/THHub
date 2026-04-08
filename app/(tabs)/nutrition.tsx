@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { collection, getDocs, getDoc, doc } from 'firebase/firestore';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { useAuth } from '../../context/AuthContext';
 import { db } from '../../lib/firebase';
 import { FoodEntry, NutritionTargets, DailyProgress, MealPlan, ExtraFoodItem } from '../../types';
@@ -26,7 +26,13 @@ export default function NutritionScreen() {
 
   useEffect(() => {
     loadData();
-  }, [selectedDate, profile]);
+  }, [selectedDate]);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadData();
+    }, [selectedDate, profile])
+  );
 
   async function loadData() {
     if (!profile) return;
@@ -55,7 +61,11 @@ export default function NutritionScreen() {
       }
 
       if (planDoc.exists()) setMealPlan(planDoc.data() as MealPlan);
-      if (progressDoc.exists()) setProgress(progressDoc.data() as DailyProgress);
+      if (progressDoc.exists()) {
+        setProgress(progressDoc.data() as DailyProgress);
+      } else {
+        setProgress(null);
+      }
 
       const loaded = entriesSnap.docs.map((d) => ({ id: d.id, ...d.data() } as FoodEntry));
       loaded.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));

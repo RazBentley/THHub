@@ -22,7 +22,7 @@ export default function GoalsScreen() {
   const [startWeight, setStartWeight] = useState('');
   const [unit, setUnit] = useState<'st' | 'kg'>('st');
 
-  useEffect(() => { loadData(); }, []);
+  useEffect(() => { loadData(); }, [profile]);
 
   async function loadData() {
     if (!profile) return;

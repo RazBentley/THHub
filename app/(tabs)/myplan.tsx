@@ -101,6 +101,8 @@ export default function MyPlanScreen() {
       if (progressDoc.exists()) {
         const data = progressDoc.data() as DailyProgress;
         setProgress({ ...data, extras: data.extras || [] });
+      } else {
+        setProgress({ mealsCompleted: [], waterGlasses: 0, extras: [] });
       }
     } catch (err) { /* silent */ }
     finally { setLoading(false); }
