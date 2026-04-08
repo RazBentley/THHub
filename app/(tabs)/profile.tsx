@@ -240,7 +240,7 @@ export default function ProfileScreen() {
       {/* Legal */}
       <TouchableOpacity
         style={styles.legalLink}
-        onPress={() => Linking.openURL('https://thtraining.com/privacy')}
+        onPress={() => Linking.openURL('https://www.thhub.co.uk/privacy')}
       >
         <Ionicons name="shield-checkmark-outline" size={16} color={colors.textMuted} />
         <Text style={styles.legalText}>Privacy Policy</Text>
