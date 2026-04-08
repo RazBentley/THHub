@@ -24,10 +24,6 @@ export default function NutritionScreen() {
   const dateStr = selectedDate.toISOString().split('T')[0];
   const isToday = dateStr === new Date().toISOString().split('T')[0];
 
-  useEffect(() => {
-    loadData();
-  }, [selectedDate]);
-
   useFocusEffect(
     useCallback(() => {
       loadData();

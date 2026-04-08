@@ -36,7 +36,7 @@ export default function MessagesScreen() {
         autoCreateChat();
       }
     }, (error) => {
-      console.error('Chat query error:', error);
+      // Chat query failed
       setLoading(false);
     });
 

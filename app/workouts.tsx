@@ -18,7 +18,7 @@ export default function WorkoutsScreen() {
 
   const today = new Date().toISOString().split('T')[0];
 
-  useEffect(() => { loadData(); }, []);
+  useEffect(() => { loadData(); }, [profile]);
 
   async function loadData() {
     if (!profile) return;

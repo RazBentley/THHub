@@ -38,7 +38,7 @@ export default function ProgressPhotosScreen() {
 
   const today = new Date().toISOString().split('T')[0];
 
-  useEffect(() => { loadPhotos(); }, []);
+  useEffect(() => { loadPhotos(); }, [profile]);
 
   async function loadPhotos() {
     if (!profile) return;
@@ -71,7 +71,9 @@ export default function ProgressPhotosScreen() {
       quality: 0.7,
       allowsEditing: true,
       aspect: [3, 4],
-    });
+      maxWidth: 1080,
+      maxHeight: 1440,
+    } as any);
 
     if (result.canceled || !result.assets[0]) return;
 
@@ -111,7 +113,9 @@ export default function ProgressPhotosScreen() {
       quality: 0.7,
       allowsEditing: true,
       aspect: [3, 4],
-    });
+      maxWidth: 1080,
+      maxHeight: 1440,
+    } as any);
 
     if (result.canceled || !result.assets[0]) return;
 

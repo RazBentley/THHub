@@ -146,7 +146,9 @@ export default function ChatScreen() {
       mediaTypes: ['images'],
       quality: 0.7,
       allowsEditing: true,
-    });
+      maxWidth: 1080,
+      maxHeight: 1440,
+    } as any);
 
     if (result.canceled || !result.assets[0]) return;
 
@@ -162,7 +164,9 @@ export default function ChatScreen() {
     const result = await ImagePicker.launchCameraAsync({
       quality: 0.7,
       allowsEditing: true,
-    });
+      maxWidth: 1080,
+      maxHeight: 1440,
+    } as any);
 
     if (result.canceled || !result.assets[0]) return;
 
@@ -198,7 +202,7 @@ export default function ChatScreen() {
         lastMessageTime: Date.now(),
       });
     } catch (err) {
-      console.error('Image upload error:', err);
+      // Image upload failed - silent for UX
     } finally {
       setUploading(false);
     }

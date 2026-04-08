@@ -22,7 +22,7 @@ export default function CardioScreen() {
 
   const today = new Date().toISOString().split('T')[0];
 
-  useEffect(() => { loadData(); }, []);
+  useEffect(() => { loadData(); }, [profile]);
 
   async function loadData() {
     if (!profile) return;

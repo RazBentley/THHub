@@ -155,7 +155,10 @@ export default function MyPlanScreen() {
     }
   };
 
-  const addWater = () => saveProgress({ ...progress, waterGlasses: (progress.waterGlasses || 0) + 1 });
+  const addWater = () => {
+    const current = progress.waterGlasses || 0;
+    if (current < 20) saveProgress({ ...progress, waterGlasses: current + 1 });
+  };
   const removeWater = () => {
     if ((progress.waterGlasses || 0) > 0)
       saveProgress({ ...progress, waterGlasses: (progress.waterGlasses || 0) - 1 });
