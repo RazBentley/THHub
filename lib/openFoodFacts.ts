@@ -1,7 +1,9 @@
 import axios from 'axios';
 import { collection, addDoc, getDocs, query, where, orderBy, limit } from 'firebase/firestore';
+import { getFunctions, httpsCallable } from 'firebase/functions';
 import { db } from './firebase';
 import { OpenFoodFactsProduct } from '../types';
+import { searchFood, FoodItem } from './foodDatabase';
 
 // UK CoFID Database - 2,887 UK government-verified foods
 import cofidData from '../assets/cofid-database.json';
@@ -9,11 +11,6 @@ import cofidData from '../assets/cofid-database.json';
 // USDA FoodData Central API - 400,000+ foods (free, no limits with your own key)
 // Get a free key: https://fdc.nal.usda.gov/api-key-signup
 const USDA_API_KEY = 'DEMO_KEY';
-
-// FatSecret Platform API - large global food database
-// Sign up free (startups <$1M): https://platform.fatsecret.com/
-const FATSECRET_CLIENT_ID = 'da4607d6c4384d1080ce9bbe9ce5a5d0';
-const FATSECRET_CLIENT_SECRET = '5041213fb7ab4a598dd416fde4a45032';
 
 const usdaClient = axios.create({
   baseURL: 'https://api.nal.usda.gov/fdc/v1',
@@ -190,70 +187,15 @@ function searchCofid(query: string): OpenFoodFactsProduct[] {
 }
 
 // ============================================================
-// FatSecret API (large global database, free for startups)
+// FatSecret API - proxied through Cloud Function (credentials kept server-side)
 // ============================================================
 
-let fatSecretToken: string | null = null;
-let fatSecretTokenExpiry = 0;
-
-async function getFatSecretToken(): Promise<string | null> {
-  if (fatSecretToken && Date.now() < fatSecretTokenExpiry) return fatSecretToken;
-  if (!FATSECRET_CLIENT_ID || FATSECRET_CLIENT_ID.startsWith('YOUR_')) return null;
-
-  try {
-    const response = await axios.post(
-      'https://oauth.fatsecret.com/connect/token',
-      'grant_type=client_credentials&scope=basic',
-      {
-        auth: { username: FATSECRET_CLIENT_ID, password: FATSECRET_CLIENT_SECRET },
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      }
-    );
-    fatSecretToken = response.data.access_token;
-    fatSecretTokenExpiry = Date.now() + (response.data.expires_in - 60) * 1000;
-    return fatSecretToken;
-  } catch {
-    return null;
-  }
-}
-
 async function searchFatSecret(query: string): Promise<OpenFoodFactsProduct[]> {
-  const token = await getFatSecretToken();
-  if (!token) return [];
-
   try {
-    const response = await axios.get('https://platform.fatsecret.com/rest/server.api', {
-      params: {
-        method: 'foods.search',
-        search_expression: query,
-        format: 'json',
-        max_results: 20,
-      },
-      headers: { Authorization: `Bearer ${token}` },
-    });
-
-    const foods = response.data?.foods?.food || [];
-    return (Array.isArray(foods) ? foods : [foods]).map((item: any) => {
-      // Parse the description string like "Per 100g - Calories: 165kcal | Fat: 3.6g | Carbs: 0g | Protein: 31g"
-      const desc = item.food_description || '';
-      const parseVal = (label: string) => {
-        const match = desc.match(new RegExp(`${label}:\\s*([\\d.]+)`));
-        return match ? parseFloat(match[1]) : 0;
-      };
-
-      return {
-        code: `fs-${item.food_id}`,
-        product_name: item.food_name || '',
-        brands: item.brand_name || 'FatSecret',
-        serving_size: '100g',
-        nutriments: {
-          'energy-kcal_100g': parseVal('Calories'),
-          proteins_100g: parseVal('Protein'),
-          carbohydrates_100g: parseVal('Carbs'),
-          fat_100g: parseVal('Fat'),
-        },
-      };
-    });
+    const functions = getFunctions();
+    const searchFn = httpsCallable<{ query: string }, { foods: OpenFoodFactsProduct[] }>(functions, 'searchFatSecretFoods');
+    const result = await searchFn({ query });
+    return result.data.foods || [];
   } catch {
     return [];
   }
@@ -320,8 +262,26 @@ async function searchSharedDatabase(searchQuery: string): Promise<OpenFoodFactsP
   }
 }
 
+function foodItemToProduct(item: FoodItem): OpenFoodFactsProduct {
+  return {
+    code: `db-${item.name.replace(/\s+/g, '-').toLowerCase()}`,
+    product_name: item.name,
+    brands: item.brand || 'Database',
+    serving_size: item.servingSize,
+    nutriments: {
+      'energy-kcal_100g': item.calories,
+      proteins_100g: item.protein,
+      carbohydrates_100g: item.carbs,
+      fat_100g: item.fat,
+    },
+  };
+}
+
 export async function searchFoods(query: string, page = 1): Promise<OpenFoodFactsProduct[]> {
   const q = query.toLowerCase();
+
+  // Search curated UK food database (Costa, Greggs, Tesco, whole foods, etc.)
+  const dbResults = searchFood(query, 20).map(foodItemToProduct);
 
   // Search local common foods + UK CoFID database (instant, no API call)
   const searchWords = q.split(/\s+/).filter(Boolean);
@@ -387,7 +347,7 @@ export async function searchFoods(query: string, page = 1): Promise<OpenFoodFact
   const seen = new Set<string>();
   const combined: OpenFoodFactsProduct[] = [];
 
-  for (const item of [...localResults, ...cofidResults, ...sharedResults, ...fatSecretResults, ...usdaResults, ...offResults]) {
+  for (const item of [...dbResults, ...localResults, ...cofidResults, ...sharedResults, ...fatSecretResults, ...usdaResults, ...offResults]) {
     const key = item.product_name.toLowerCase().trim();
     if (!seen.has(key)) {
       seen.add(key);

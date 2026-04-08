@@ -5,8 +5,12 @@ import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signOut as firebaseSignOut,
+  deleteUser,
+  EmailAuthProvider,
+  reauthenticateWithCredential,
 } from 'firebase/auth';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
+import { getFunctions, httpsCallable } from 'firebase/functions';
 import { auth, db } from '../lib/firebase';
 import { UserProfile, UserRole } from '../types';
 
@@ -18,6 +22,7 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string, name: string, role?: UserRole) => Promise<void>;
   signOut: () => Promise<void>;
+  deleteAccount: (password: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({} as AuthContextType);
@@ -32,20 +37,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+    let unsubProfile: (() => void) | null = null;
+
+    const unsubAuth = onAuthStateChanged(auth, (firebaseUser) => {
       setUser(firebaseUser);
+      // Clean up previous profile listener
+      if (unsubProfile) {
+        unsubProfile();
+        unsubProfile = null;
+      }
       if (firebaseUser) {
-        const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
-        if (userDoc.exists()) {
-          setProfile(userDoc.data() as UserProfile);
-        }
+        // Realtime listener keeps profile in sync with Firestore
+        unsubProfile = onSnapshot(doc(db, 'users', firebaseUser.uid), (snap) => {
+          if (snap.exists()) {
+            setProfile(snap.data() as UserProfile);
+          }
+          setLoading(false);
+        });
       } else {
         setProfile(null);
+        setLoading(false);
       }
-      setLoading(false);
     });
 
-    return unsubscribe;
+    return () => {
+      unsubAuth();
+      if (unsubProfile) unsubProfile();
+    };
   }, []);
 
   const signIn = async (email: string, password: string) => {
@@ -70,6 +88,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setProfile(newProfile);
   };
 
+  const deleteAccount = async (password: string) => {
+    if (!user || !user.email) throw new Error('Not signed in');
+    // Re-authenticate before destructive action
+    const credential = EmailAuthProvider.credential(user.email, password);
+    await reauthenticateWithCredential(user, credential);
+    // Call Cloud Function to delete Firestore data & Storage files
+    const functions = getFunctions();
+    const deleteUserData = httpsCallable(functions, 'deleteUserAccount');
+    await deleteUserData();
+    // Delete the Firebase Auth account
+    await deleteUser(user);
+    setProfile(null);
+  };
+
   const signOut = async () => {
     await firebaseSignOut(auth);
     setProfile(null);
@@ -85,6 +117,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         signIn,
         signUp,
         signOut,
+        deleteAccount,
       }}
     >
       {children}

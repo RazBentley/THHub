@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Image, Linking, TextInput } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Image, Linking, TextInput, Modal, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
@@ -17,11 +17,15 @@ import { useTheme } from '../../context/ThemeContext';
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
 export default function ProfileScreen() {
-  const { profile, isOwner, signOut } = useAuth();
+  const { profile, isOwner, signOut, deleteAccount } = useAuth();
   const { mode, toggleTheme, isDark } = useTheme();
   const [selectedDay, setSelectedDay] = useState(profile?.checkInDay || 'Monday');
   const [photoURL, setPhotoURL] = useState(profile?.photoURL || '');
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deletePassword, setDeletePassword] = useState('');
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
 
   const handlePhotoUpload = async () => {
     if (!profile) return;
@@ -64,6 +68,28 @@ export default function ProfileScreen() {
       router.replace('/(auth)/login');
     } catch (err) {
       Alert.alert('Error', 'Failed to sign out');
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!deletePassword.trim()) {
+      setDeleteError('Please enter your password');
+      return;
+    }
+    setDeleting(true);
+    setDeleteError('');
+    try {
+      await deleteAccount(deletePassword);
+      setShowDeleteModal(false);
+      router.replace('/(auth)/login');
+    } catch (err: any) {
+      if (err?.code === 'auth/wrong-password' || err?.code === 'auth/invalid-credential') {
+        setDeleteError('Incorrect password. Please try again.');
+      } else {
+        setDeleteError('Failed to delete account. Please try again.');
+      }
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -244,7 +270,67 @@ export default function ProfileScreen() {
         style={{ marginTop: spacing.md }}
       />
 
+      {/* Delete Account */}
+      <TouchableOpacity
+        style={styles.deleteLink}
+        onPress={() => {
+          setDeletePassword('');
+          setDeleteError('');
+          setShowDeleteModal(true);
+        }}
+      >
+        <Ionicons name="trash-outline" size={16} color={colors.error} />
+        <Text style={styles.deleteText}>Delete Account</Text>
+      </TouchableOpacity>
+
       <Text style={styles.version}>TH Hub v1.0.0</Text>
+
+      {/* Delete Account Modal */}
+      <Modal visible={showDeleteModal} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalIconRow}>
+              <View style={styles.modalIconCircle}>
+                <Ionicons name="warning" size={28} color={colors.error} />
+              </View>
+            </View>
+            <Text style={styles.modalTitle}>Delete Account</Text>
+            <Text style={styles.modalDesc}>
+              This will permanently delete your account and all associated data including meal plans, progress photos, check-ins, and workout history. This action cannot be undone.
+            </Text>
+            <TextInput
+              style={styles.modalInput}
+              value={deletePassword}
+              onChangeText={setDeletePassword}
+              placeholder="Enter your password to confirm"
+              placeholderTextColor={colors.textMuted}
+              secureTextEntry
+              autoCapitalize="none"
+              editable={!deleting}
+            />
+            {deleteError ? <Text style={styles.modalError}>{deleteError}</Text> : null}
+            <TouchableOpacity
+              style={[styles.deleteBtn, deleting && { opacity: 0.5 }]}
+              onPress={handleDeleteAccount}
+              disabled={deleting}
+              activeOpacity={0.8}
+            >
+              {deleting ? (
+                <ActivityIndicator color="#fff" size="small" />
+              ) : (
+                <Text style={styles.deleteBtnText}>Permanently Delete Account</Text>
+              )}
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.modalCancel}
+              onPress={() => setShowDeleteModal(false)}
+              disabled={deleting}
+            >
+              <Text style={styles.modalCancelText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </ScrollView>
   );
 }
@@ -519,5 +605,93 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: spacing.md,
     marginBottom: spacing.lg,
+  },
+  deleteLink: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.xs,
+    marginTop: spacing.lg,
+    paddingVertical: spacing.sm,
+  },
+  deleteText: {
+    color: colors.error,
+    fontSize: fontSize.sm,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: spacing.lg,
+  },
+  modalContent: {
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.lg,
+    padding: spacing.xl,
+    width: '100%',
+    maxWidth: 400,
+  },
+  modalIconRow: {
+    alignItems: 'center',
+    marginBottom: spacing.md,
+  },
+  modalIconCircle: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: (colors.error) + '15',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalTitle: {
+    color: colors.text,
+    fontSize: fontSize.lg,
+    fontWeight: '700',
+    textAlign: 'center',
+    marginBottom: spacing.sm,
+  },
+  modalDesc: {
+    color: colors.textMuted,
+    fontSize: fontSize.sm,
+    textAlign: 'center',
+    lineHeight: 20,
+    marginBottom: spacing.lg,
+  },
+  modalInput: {
+    backgroundColor: colors.inputBackground,
+    borderRadius: borderRadius.md,
+    padding: spacing.md,
+    color: colors.text,
+    fontSize: fontSize.sm,
+    borderWidth: 1,
+    borderColor: colors.border,
+    marginBottom: spacing.sm,
+  },
+  modalError: {
+    color: colors.error,
+    fontSize: fontSize.xs,
+    marginBottom: spacing.sm,
+  },
+  deleteBtn: {
+    backgroundColor: colors.error,
+    borderRadius: borderRadius.md,
+    paddingVertical: spacing.sm + 4,
+    alignItems: 'center',
+    marginTop: spacing.sm,
+  },
+  deleteBtnText: {
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: fontSize.md,
+  },
+  modalCancel: {
+    alignItems: 'center',
+    paddingVertical: spacing.md,
+  },
+  modalCancelText: {
+    color: colors.textMuted,
+    fontSize: fontSize.sm,
+    fontWeight: '600',
   },
 });

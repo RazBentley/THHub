@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Image } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Pressable, TextInput, Image, Platform, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Stack, router, Redirect } from 'expo-router';
@@ -43,7 +43,10 @@ export default function OnboardingScreen() {
   }
 
   const handleSave = async () => {
-    if (!profile) return;
+    if (!profile) {
+      Alert.alert('Error', 'Profile not loaded yet. Please wait a moment and try again.');
+      return;
+    }
     setSaving(true);
     try {
       const onboarding: OnboardingInfo = {
@@ -60,14 +63,24 @@ export default function OnboardingScreen() {
       if (gender) updates.gender = gender;
       await updateDoc(doc(db, 'users', profile.uid), updates);
       router.replace('/(tabs)/dashboard');
-    } catch { /* silent */ }
-    finally { setSaving(false); }
+    } catch (err: any) {
+      Alert.alert('Error', err?.message || 'Failed to save onboarding data');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleSkip = async () => {
-    if (!profile) return;
-    await updateDoc(doc(db, 'users', profile.uid), { onboarding: { completedAt: Date.now() } });
-    router.replace('/(tabs)/dashboard');
+    if (!profile) {
+      Alert.alert('Error', 'Profile not loaded yet. Please wait a moment and try again.');
+      return;
+    }
+    try {
+      await updateDoc(doc(db, 'users', profile.uid), { onboarding: { completedAt: Date.now() } });
+      router.replace('/(tabs)/dashboard');
+    } catch (err: any) {
+      Alert.alert('Error', err?.message || 'Failed to skip onboarding');
+    }
   };
 
   const Chip = ({ label, selected, onPress }: { label: string; selected: boolean; onPress: () => void }) => (
@@ -86,7 +99,7 @@ export default function OnboardingScreen() {
   return (
     <>
       <Stack.Screen options={{ headerShown: false }} />
-      <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+      <ScrollView style={styles.container} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
 
         {/* Progress */}
         {step > 0 && (
@@ -236,36 +249,35 @@ export default function OnboardingScreen() {
         <View style={styles.navRow}>
           {step === 0 ? (
             <>
-              <TouchableOpacity onPress={handleSkip}>
+              <Pressable onPress={handleSkip} hitSlop={12}>
                 <Text style={styles.skipText}>Skip for now</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.primaryBtn} onPress={() => setStep(1)} activeOpacity={0.8}>
-                <LinearGradient colors={[colors.primary, colors.primaryDark]} style={styles.primaryBtnGradient}>
+              </Pressable>
+              <Pressable style={styles.primaryBtn} onPress={() => setStep(1)}>
+                <LinearGradient colors={[colors.primary, colors.primaryDark]} style={styles.primaryBtnGradient} pointerEvents="none">
                   <Text style={styles.primaryBtnText}>Let's Go</Text>
                   <Ionicons name="arrow-forward" size={18} color="#fff" />
                 </LinearGradient>
-              </TouchableOpacity>
+              </Pressable>
             </>
           ) : (
             <>
-              <TouchableOpacity onPress={() => setStep(step - 1)}>
+              <Pressable onPress={() => setStep(step - 1)} hitSlop={12}>
                 <Text style={styles.backText}>Back</Text>
-              </TouchableOpacity>
-              <View style={{ flexDirection: 'row', gap: spacing.md }}>
-                <TouchableOpacity onPress={() => step === lastStep ? handleSave() : setStep(step + 1)}>
+              </Pressable>
+              <View style={{ flexDirection: 'row', gap: spacing.md, alignItems: 'center' }}>
+                <Pressable onPress={() => step === lastStep ? handleSave() : setStep(step + 1)} hitSlop={12}>
                   <Text style={styles.skipText}>Skip</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.primaryBtn}
+                </Pressable>
+                <Pressable
+                  style={({ pressed }) => [styles.primaryBtn, pressed && { opacity: 0.8 }]}
                   onPress={() => step === lastStep ? handleSave() : setStep(step + 1)}
                   disabled={saving}
-                  activeOpacity={0.8}
                 >
-                  <LinearGradient colors={[colors.primary, colors.primaryDark]} style={styles.primaryBtnGradient}>
+                  <LinearGradient colors={[colors.primary, colors.primaryDark]} style={styles.primaryBtnGradient} pointerEvents="none">
                     <Text style={styles.primaryBtnText}>{step === lastStep ? (saving ? 'Saving...' : 'Finish') : 'Next'}</Text>
                     {step < lastStep && <Ionicons name="arrow-forward" size={16} color="#fff" />}
                   </LinearGradient>
-                </TouchableOpacity>
+                </Pressable>
               </View>
             </>
           )}

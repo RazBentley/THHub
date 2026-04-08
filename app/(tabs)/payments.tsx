@@ -7,7 +7,8 @@ import { useAuth } from '../../context/AuthContext';
 import { db } from '../../lib/firebase';
 import { Button } from '../../components/ui/Button';
 import { GradientCard } from '../../components/ui/GradientCard';
-import { PLAN_NAME, PLAN_PRICE } from '../../lib/stripe';
+const PLAN_NAME = 'TH Training - Nutrition & Online Coaching';
+const PLAN_PRICE = '£50.00';
 import { Subscription } from '../../types';
 import { colors, spacing, fontSize, borderRadius, shadows } from '../../components/ui/theme';
 
