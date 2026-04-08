@@ -356,21 +356,22 @@ function AboutMeSection() {
     if (!profile) return;
     setSaving(true);
     try {
-      const onboarding: OnboardingInfo = {
-        mainGoal: mainGoal || undefined,
-        motivation: motivation || undefined,
-        experience: experience || undefined,
-        trainingDays: trainingDays || undefined,
-        healthConditions: healthConditions || undefined,
-        dietaryRequirements: dietaryRequirements || undefined,
-        additionalNotes: additionalNotes || undefined,
-        completedAt: Date.now(),
-      };
+      const onboarding: Record<string, any> = { completedAt: Date.now() };
+      if (mainGoal) onboarding.mainGoal = mainGoal;
+      if (motivation) onboarding.motivation = motivation;
+      if (experience) onboarding.experience = experience;
+      if (trainingDays) onboarding.trainingDays = trainingDays;
+      if (healthConditions) onboarding.healthConditions = healthConditions;
+      if (dietaryRequirements) onboarding.dietaryRequirements = dietaryRequirements;
+      if (additionalNotes) onboarding.additionalNotes = additionalNotes;
       await updateDoc(doc(db, 'users', profile.uid), { onboarding });
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
-    } catch { /* silent */ }
-    finally { setSaving(false); }
+    } catch (err: any) {
+      Alert.alert('Error', err?.message || 'Failed to save');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const AboutField = ({ label, value, onChangeText, placeholder, multiline }: {
