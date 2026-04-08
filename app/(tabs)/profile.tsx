@@ -12,13 +12,11 @@ import { OnboardingInfo } from '../../types';
 import { Button } from '../../components/ui/Button';
 import { colors, spacing, fontSize, borderRadius, shadows, gradients } from '../../components/ui/theme';
 import { scheduleWeeklyCheckIn, getDayNumber } from '../../lib/notifications';
-import { useTheme } from '../../context/ThemeContext';
 
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
 export default function ProfileScreen() {
   const { profile, isOwner, signOut, deleteAccount } = useAuth();
-  const { mode, toggleTheme, isDark } = useTheme();
   const [selectedDay, setSelectedDay] = useState(profile?.checkInDay || 'Monday');
   const [photoURL, setPhotoURL] = useState(profile?.photoURL || '');
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
@@ -160,21 +158,6 @@ export default function ProfileScreen() {
       {/* About Me */}
       {!isOwner && <AboutMeSection />}
 
-      {/* Appearance */}
-      <View style={[styles.section, shadows.sm]}>
-        <View style={styles.sectionHeader}>
-          <Ionicons name={isDark ? 'moon' : 'sunny'} size={20} color={colors.accent} />
-          <Text style={styles.sectionTitle}>Appearance</Text>
-        </View>
-        <TouchableOpacity style={styles.themeToggle} onPress={toggleTheme}>
-          <Text style={styles.themeToggleLabel}>{isDark ? 'Dark Mode' : 'Light Mode'}</Text>
-          <View style={[styles.toggleTrack, !isDark && styles.toggleTrackLight]}>
-            <View style={[styles.toggleThumb, !isDark && styles.toggleThumbLight]}>
-              <Ionicons name={isDark ? 'moon' : 'sunny'} size={14} color={isDark ? colors.accent : '#f59e0b'} />
-            </View>
-          </View>
-        </TouchableOpacity>
-      </View>
 
       {/* Quick Links */}
       <View style={styles.section}>
@@ -582,12 +565,6 @@ const styles = StyleSheet.create({
     fontSize: fontSize.xs,
     marginTop: 1,
   },
-  themeToggle: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  themeToggleLabel: { color: colors.text, fontSize: fontSize.md, fontWeight: '500' },
-  toggleTrack: { width: 52, height: 30, borderRadius: 15, backgroundColor: colors.surfaceLight, justifyContent: 'center', paddingHorizontal: 3 },
-  toggleTrackLight: { backgroundColor: '#fef3c7' },
-  toggleThumb: { width: 24, height: 24, borderRadius: 12, backgroundColor: colors.surface, justifyContent: 'center', alignItems: 'center', alignSelf: 'flex-end' },
-  toggleThumbLight: { alignSelf: 'flex-start', backgroundColor: '#fff' },
   legalLink: {
     flexDirection: 'row',
     alignItems: 'center',
