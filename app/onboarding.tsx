@@ -49,16 +49,14 @@ export default function OnboardingScreen() {
     }
     setSaving(true);
     try {
-      const onboarding: OnboardingInfo = {
-        mainGoal: mainGoal || undefined,
-        motivation: motivation || undefined,
-        experience: experience || undefined,
-        trainingDays: trainingDays || undefined,
-        healthConditions: healthConditions || undefined,
-        dietaryRequirements: dietaryRequirements || undefined,
-        additionalNotes: additionalNotes || undefined,
-        completedAt: Date.now(),
-      };
+      const onboarding: Record<string, any> = { completedAt: Date.now() };
+      if (mainGoal) onboarding.mainGoal = mainGoal;
+      if (motivation) onboarding.motivation = motivation;
+      if (experience) onboarding.experience = experience;
+      if (trainingDays) onboarding.trainingDays = trainingDays;
+      if (healthConditions) onboarding.healthConditions = healthConditions;
+      if (dietaryRequirements) onboarding.dietaryRequirements = dietaryRequirements;
+      if (additionalNotes) onboarding.additionalNotes = additionalNotes;
       const updates: Record<string, any> = { onboarding };
       if (gender) updates.gender = gender;
       await updateDoc(doc(db, 'users', profile.uid), updates);
