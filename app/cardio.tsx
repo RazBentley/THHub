@@ -37,17 +37,21 @@ export default function CardioScreen() {
         setSaved(true);
       }
 
-      // Load last 7 days
-      const history: DailyCardio[] = [];
-      for (let i = 0; i < 7; i++) {
+      // Load last 7 days in parallel
+      const dates = Array.from({ length: 7 }, (_, i) => {
         const d = new Date();
         d.setDate(d.getDate() - i);
-        const dateStr = d.toISOString().split('T')[0];
-        const dayDoc = await getDoc(doc(db, 'users', profile.uid, 'cardioLog', dateStr));
+        return d.toISOString().split('T')[0];
+      });
+      const dayDocs = await Promise.all(
+        dates.map(dateStr => getDoc(doc(db, 'users', profile.uid, 'cardioLog', dateStr)))
+      );
+      const history: DailyCardio[] = [];
+      dayDocs.forEach((dayDoc, i) => {
         if (dayDoc.exists()) {
-          history.push({ date: dateStr, ...dayDoc.data() } as DailyCardio);
+          history.push({ date: dates[i], ...dayDoc.data() } as DailyCardio);
         }
-      }
+      });
       setWeekHistory(history);
     } catch { /* silent */ }
   }

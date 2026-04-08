@@ -113,6 +113,7 @@ export default function ChatScreen() {
 
   const sendMessage = async () => {
     if (!inputText.trim() || !profile || !id) return;
+    if (inputText.length > 2000) return;
 
     const text = inputText.trim();
     setInputText('');

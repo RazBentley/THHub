@@ -62,14 +62,14 @@ export default function WorkoutsScreen() {
 
   const toggleExercise = async (exerciseIndex: number) => {
     if (!profile || !progress) return;
-    const newCompleted = [...progress.exercisesCompleted];
+    const newCompleted = [...(progress.exercisesCompleted || [])];
     newCompleted[exerciseIndex] = !newCompleted[exerciseIndex];
 
-    const allDone = newCompleted.every(Boolean);
+    const allDone = newCompleted.length > 0 && newCompleted.every(Boolean);
     const newProgress: WorkoutProgress = {
       ...progress,
       exercisesCompleted: newCompleted,
-      completedAt: allDone ? Date.now() : undefined,
+      completedAt: allDone ? Date.now() : null,
     };
     await saveProgress(newProgress);
 

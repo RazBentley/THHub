@@ -80,7 +80,7 @@ export default function DashboardScreen() {
           if (progressDoc.exists()) {
             const prog = progressDoc.data();
             setMealsCompleted((prog.mealsCompleted || []).filter(Boolean).length);
-            const waterTarget = Math.round((planDoc.exists() ? planDoc.data().waterTargetLitres || 3 : 3) / 0.5);
+            const waterTarget = Math.max(1, Math.round((planDoc.exists() ? planDoc.data().waterTargetLitres || 3 : 3) / 0.5));
             setWaterProgress((prog.waterGlasses || 0) / waterTarget);
           }
         } catch { /* silent */ }

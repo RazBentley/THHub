@@ -74,6 +74,7 @@ export default function CommunitiesScreen() {
 
   const sendMessage = async () => {
     if (!profile || !activeCommunity || !newMessage.trim()) return;
+    if (newMessage.length > 1000) { Alert.alert('Message too long', 'Please keep messages under 1000 characters.'); return; }
     setSending(true);
     try {
       await addDoc(
