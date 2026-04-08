@@ -4,8 +4,7 @@ import Stripe from 'stripe';
 
 const db = admin.firestore();
 
-// TODO: Set your Stripe secret key in Firebase config:
-// firebase functions:config:set stripe.secret_key="sk_test_..."
+// Stripe secret key from Firebase config
 const stripe = new Stripe(functions.config().stripe?.secret_key || '', {
   apiVersion: '2023-10-16' as any,
 });

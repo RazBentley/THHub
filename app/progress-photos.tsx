@@ -86,7 +86,7 @@ export default function ProgressPhotosScreen() {
       const downloadUrl = await getDownloadURL(storageRef);
 
       const updatedSet: ProgressPhotoSet = {
-        ...currentSet!,
+        ...(currentSet || { date: today }),
         [angle]: downloadUrl,
         submittedAt: Date.now(),
       };
@@ -126,7 +126,7 @@ export default function ProgressPhotosScreen() {
       const downloadUrl = await getDownloadURL(storageRef);
 
       const updatedSet: ProgressPhotoSet = {
-        ...currentSet!,
+        ...(currentSet || { date: today }),
         [angle]: downloadUrl,
         submittedAt: Date.now(),
       };
