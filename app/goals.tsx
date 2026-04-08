@@ -8,6 +8,7 @@ import { useAuth } from '../context/AuthContext';
 import { db } from '../lib/firebase';
 import { WeightGoal, WeeklyCheckIn } from '../types';
 import { colors, spacing, fontSize, borderRadius, shadows } from '../components/ui/theme';
+import { InactiveGate } from '../components/ui/InactiveGate';
 
 export default function GoalsScreen() {
   const { profile } = useAuth();
@@ -93,6 +94,7 @@ export default function GoalsScreen() {
     : null;
 
   return (
+    <InactiveGate>
     <>
       <Stack.Screen options={{ headerBackTitle: ' ', headerShown: true, title: 'Goals', headerStyle: { backgroundColor: colors.secondary }, headerTintColor: colors.text }} />
       <ScrollView style={styles.container} contentContainerStyle={styles.content}>
@@ -215,6 +217,7 @@ export default function GoalsScreen() {
         )}
       </ScrollView>
     </>
+    </InactiveGate>
   );
 }
 

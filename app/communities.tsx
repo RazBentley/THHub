@@ -66,9 +66,10 @@ export default function CommunitiesScreen() {
 
   const canJoin = (community: Community) => {
     if (!community.restriction || community.restriction === 'none') return true;
-    if (community.restriction === 'female-only' && profile?.gender === 'female') return true;
-    if (community.restriction === 'male-only' && profile?.gender === 'male') return true;
     if (isOwner) return true;
+    if (!profile?.gender) return false; // Gender not set — can't join restricted communities
+    if (community.restriction === 'female-only' && profile.gender === 'female') return true;
+    if (community.restriction === 'male-only' && profile.gender === 'male') return true;
     return false;
   };
 

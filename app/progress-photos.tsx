@@ -12,6 +12,7 @@ import { doc, getDoc, setDoc, collection, getDocs } from 'firebase/firestore';
 import { useAuth } from '../context/AuthContext';
 import { db, storage } from '../lib/firebase';
 import { colors, spacing, fontSize, borderRadius, shadows } from '../components/ui/theme';
+import { InactiveGate } from '../components/ui/InactiveGate';
 
 const screenWidth = Dimensions.get('window').width;
 const photoSize = (screenWidth - spacing.md * 4) / 3;
@@ -183,6 +184,7 @@ export default function ProgressPhotosScreen() {
   );
 
   return (
+    <InactiveGate>
     <>
       <Stack.Screen options={{ headerBackTitle: ' ', headerShown: true, title: 'Progress Photos', headerStyle: { backgroundColor: colors.secondary }, headerTintColor: colors.text }} />
       <ScrollView style={styles.container} contentContainerStyle={styles.content}>
@@ -314,6 +316,7 @@ export default function ProgressPhotosScreen() {
         )}
       </ScrollView>
     </>
+    </InactiveGate>
   );
 }
 

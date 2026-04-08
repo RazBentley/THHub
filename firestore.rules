@@ -19,7 +19,8 @@ service cloud.firestore {
 
     // Users collection
     match /users/{userId} {
-      allow read: if isUser(userId) || isOwner();
+      // Allow any auth'd user to read owner/coach profiles (needed for chat creation)
+      allow read: if isUser(userId) || isOwner() || (isAuth() && resource.data.role == 'owner');
       allow create: if isAuth() && request.auth.uid == userId;
       allow update: if isUser(userId) || isOwner();
       allow delete: if isOwner();

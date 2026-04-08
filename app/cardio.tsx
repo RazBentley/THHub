@@ -8,6 +8,7 @@ import { useAuth } from '../context/AuthContext';
 import { db } from '../lib/firebase';
 import { DailyCardio } from '../types';
 import { colors, spacing, fontSize, borderRadius, shadows } from '../components/ui/theme';
+import { InactiveGate } from '../components/ui/InactiveGate';
 
 const CARDIO_TYPES = ['Walking', 'Incline Walk', 'Running', 'Cycling', 'Swimming', 'HIIT', 'Other'];
 
@@ -78,6 +79,7 @@ export default function CardioScreen() {
   const weekAvgSteps = weekHistory.length > 0 ? Math.round(weekTotalSteps / weekHistory.length) : 0;
 
   return (
+    <InactiveGate>
     <>
       <Stack.Screen options={{ headerBackTitle: ' ', headerShown: true, title: 'Cardio & Steps', headerStyle: { backgroundColor: colors.secondary }, headerTintColor: colors.text }} />
       <ScrollView style={styles.container} contentContainerStyle={styles.content}>
@@ -167,6 +169,7 @@ export default function CardioScreen() {
         )}
       </ScrollView>
     </>
+    </InactiveGate>
   );
 }
 

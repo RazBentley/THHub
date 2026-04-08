@@ -8,6 +8,7 @@ import { useAuth } from '../context/AuthContext';
 import { db } from '../lib/firebase';
 import { WorkoutProgramme, WorkoutDay, WorkoutProgress, ExerciseLog } from '../types';
 import { colors, spacing, fontSize, borderRadius, shadows } from '../components/ui/theme';
+import { InactiveGate } from '../components/ui/InactiveGate';
 
 export default function WorkoutsScreen() {
   const { profile } = useAuth();
@@ -108,6 +109,7 @@ export default function WorkoutsScreen() {
   const isActiveWorkout = progress?.dayLabel === currentDay?.label;
 
   return (
+    <InactiveGate>
     <>
       <Stack.Screen options={{ headerBackTitle: ' ', headerShown: true, title: programme.name, headerStyle: { backgroundColor: colors.secondary }, headerTintColor: colors.text }} />
       <ScrollView style={styles.container} contentContainerStyle={styles.content}>
@@ -233,6 +235,7 @@ export default function WorkoutsScreen() {
         )}
       </ScrollView>
     </>
+    </InactiveGate>
   );
 }
 

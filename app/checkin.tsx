@@ -11,6 +11,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '../context/AuthContext';
 import { db, storage } from '../lib/firebase';
 import { colors, spacing, fontSize, borderRadius, shadows } from '../components/ui/theme';
+import { InactiveGate } from '../components/ui/InactiveGate';
 
 function getWeekId(): string {
   const now = new Date();
@@ -124,6 +125,7 @@ export default function CheckInScreen() {
   };
 
   return (
+    <InactiveGate>
     <>
       <Stack.Screen
         options={{
@@ -238,6 +240,7 @@ export default function CheckInScreen() {
         </TouchableOpacity>
       </ScrollView>
     </>
+    </InactiveGate>
   );
 }
 
