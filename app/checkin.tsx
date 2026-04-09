@@ -12,7 +12,6 @@ import { useAuth } from '../context/AuthContext';
 import { db, storage } from '../lib/firebase';
 import { colors, spacing, fontSize, borderRadius, shadows } from '../components/ui/theme';
 import { InactiveGate } from '../components/ui/InactiveGate';
-import { InactiveGate } from '../components/ui/InactiveGate';
 import { getLocalDateStr } from '../lib/dates';
 
 function getWeekId(): string {
