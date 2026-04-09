@@ -37,6 +37,18 @@ export function InactiveGate({ children }: { children: React.ReactNode }) {
         <Text style={styles.welcomeText}>
           Thanks for signing up. Your coach will review your profile and set up your personalised plan. Once your coaching begins, you'll unlock full access to all features below.
         </Text>
+
+        {/* CTA - prominent, right after welcome */}
+        <TouchableOpacity
+          style={styles.ctaButton}
+          onPress={() => router.push('/(tabs)/messages')}
+          activeOpacity={0.8}
+        >
+          <LinearGradient colors={[colors.primary, colors.primaryDark]} style={styles.ctaButtonGradient}>
+            <Ionicons name="chatbubble" size={18} color="#fff" />
+            <Text style={styles.ctaButtonText}>Message Your Coach</Text>
+          </LinearGradient>
+        </TouchableOpacity>
       </LinearGradient>
 
       {/* Locked Features Preview */}
@@ -54,24 +66,6 @@ export function InactiveGate({ children }: { children: React.ReactNode }) {
             <Text style={styles.featureDesc}>{feature.desc}</Text>
           </View>
         ))}
-      </View>
-
-      {/* CTA */}
-      <View style={[styles.ctaCard, shadows.sm]}>
-        <Text style={styles.ctaTitle}>Ready to Get Started?</Text>
-        <Text style={styles.ctaText}>
-          Send your coach a message to arrange your coaching plan and get activated.
-        </Text>
-        <TouchableOpacity
-          style={styles.ctaButton}
-          onPress={() => router.push('/(tabs)/messages')}
-          activeOpacity={0.8}
-        >
-          <LinearGradient colors={[colors.primary, colors.primaryDark]} style={styles.ctaButtonGradient}>
-            <Ionicons name="chatbubble" size={18} color="#fff" />
-            <Text style={styles.ctaButtonText}>Message Your Coach</Text>
-          </LinearGradient>
-        </TouchableOpacity>
       </View>
     </View>
   );
