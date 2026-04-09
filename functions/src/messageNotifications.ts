@@ -33,7 +33,12 @@ export const onNewMessage = functions.firestore
       const recipientId = participants.find((uid: string) => uid !== senderId);
       if (!recipientId) return;
 
-      // Get recipient's FCM token
+      // Always update per-user unread count (before push, so it works even without FCM token)
+      await db.collection('chats').doc(chatId).update({
+        [`unreadBy.${recipientId}`]: admin.firestore.FieldValue.increment(1),
+      });
+
+      // Send push notification if recipient has FCM token
       const recipientDoc = await db.collection('users').doc(recipientId).get();
       if (!recipientDoc.exists) return;
 
@@ -44,7 +49,6 @@ export const onNewMessage = functions.firestore
       const senderDoc = await db.collection('users').doc(senderId).get();
       const senderName = senderDoc.exists ? senderDoc.data()?.name || 'Someone' : 'Someone';
 
-      // Send push notification
       const notification: admin.messaging.Message = {
         token: recipientData.fcmToken,
         notification: {
@@ -75,12 +79,6 @@ export const onNewMessage = functions.firestore
       };
 
       await messaging.send(notification);
-      console.log(`Message notification sent to ${recipientId} from ${senderName}`);
-
-      // Update per-user unread count on the chat
-      await db.collection('chats').doc(chatId).update({
-        [`unreadBy.${recipientId}`]: admin.firestore.FieldValue.increment(1),
-      });
     } catch (error) {
       console.error('Error sending message notification:', error);
     }
