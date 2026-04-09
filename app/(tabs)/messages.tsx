@@ -88,7 +88,7 @@ export default function MessagesScreen() {
         clientName: client.name,
         lastMessage: '',
         lastMessageTime: Date.now(),
-        unreadCount: 0,
+        unreadBy: {},
       });
       setShowNewChat(false);
       router.push(`/chat/${newChat.id}`);
@@ -113,7 +113,7 @@ export default function MessagesScreen() {
         coachName: ownerData.name || 'Coach',
         lastMessage: '',
         lastMessageTime: Date.now(),
-        unreadCount: 0,
+        unreadBy: {},
       });
     } catch (err: any) {
       // Ignore permission errors during account deletion
@@ -150,7 +150,7 @@ export default function MessagesScreen() {
         coachName: ownerData.name || 'Coach',
         lastMessage: '',
         lastMessageTime: Date.now(),
-        unreadCount: 0,
+        unreadBy: {},
       });
 
       router.push(`/chat/${newChat.id}`);

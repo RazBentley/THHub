@@ -10,7 +10,7 @@ import { Audio } from 'expo-av';
 import * as Notifications from 'expo-notifications';
 import {
   collection, query, orderBy, onSnapshot, addDoc, doc,
-  updateDoc, getDoc, getDocs, deleteDoc, increment,
+  updateDoc, getDoc, getDocs, deleteDoc,
 } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { useAuth } from '../../context/AuthContext';
@@ -143,14 +143,12 @@ export default function ChatScreen() {
         read: false,
       });
 
-      const chatUpdate: Record<string, any> = {
+      await updateDoc(doc(db, 'chats', id), {
         lastMessage: text,
         lastMessageTime: Date.now(),
         typingUid: null,
         typingAt: 0,
-      };
-      if (otherUid) chatUpdate[`unreadBy.${otherUid}`] = increment(1);
-      await updateDoc(doc(db, 'chats', id), chatUpdate);
+      });
     } catch (err: any) {
       Alert.alert('Message Error', err?.message || 'Failed to send message');
     }
@@ -217,12 +215,10 @@ export default function ChatScreen() {
         read: false,
       });
 
-      const photoUpdate: Record<string, any> = {
+      await updateDoc(doc(db, 'chats', id), {
         lastMessage: 'Sent a photo',
         lastMessageTime: Date.now(),
-      };
-      if (otherUid) photoUpdate[`unreadBy.${otherUid}`] = increment(1);
-      await updateDoc(doc(db, 'chats', id), photoUpdate);
+      });
     } catch (err) {
       // Image upload failed - silent for UX
     } finally {
@@ -294,12 +290,10 @@ export default function ChatScreen() {
         read: false,
       });
 
-      const voiceUpdate: Record<string, any> = {
+      await updateDoc(doc(db, 'chats', id), {
         lastMessage: 'Voice message',
         lastMessageTime: Date.now(),
-      };
-      if (otherUid) voiceUpdate[`unreadBy.${otherUid}`] = increment(1);
-      await updateDoc(doc(db, 'chats', id), voiceUpdate);
+      });
     } catch {
       Alert.alert('Error', 'Failed to send voice message');
     } finally {
