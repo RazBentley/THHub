@@ -12,15 +12,24 @@ import { useAuth } from '../context/AuthContext';
 import { db, storage } from '../lib/firebase';
 import { colors, spacing, fontSize, borderRadius, shadows } from '../components/ui/theme';
 import { InactiveGate } from '../components/ui/InactiveGate';
+import { InactiveGate } from '../components/ui/InactiveGate';
+import { getLocalDateStr } from '../lib/dates';
 
 function getWeekId(): string {
   const now = new Date();
   const d = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
-  // ISO week: week 1 is the week with the year's first Thursday
   d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
   const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
   const week = Math.ceil(((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
   return `${d.getUTCFullYear()}-W${String(week).padStart(2, '0')}`;
+}
+
+function getRelativeWeek(createdAt?: number): number {
+  if (!createdAt) return 1;
+  const start = new Date(createdAt);
+  const now = new Date();
+  const diffMs = now.getTime() - start.getTime();
+  return Math.max(1, Math.ceil(diffMs / (7 * 24 * 60 * 60 * 1000)));
 }
 
 export default function CheckInScreen() {
@@ -108,7 +117,7 @@ export default function CheckInScreen() {
 
       // Also save to progressPhotos for the photos screen
       if (Object.keys(photoUrls).length > 0) {
-        const today = new Date().toISOString().split('T')[0];
+        const today = getLocalDateStr();
         await setDoc(doc(db, 'users', profile.uid, 'progressPhotos', today), { date: today, ...photoUrls });
       }
 
@@ -131,7 +140,7 @@ export default function CheckInScreen() {
         options={{
           headerBackTitle: ' ',
           headerShown: true,
-          title: 'Weekly Check-In',
+          title: `Week ${getRelativeWeek(profile?.createdAt)} Check-In`,
           headerStyle: { backgroundColor: colors.secondary },
           headerTintColor: colors.text,
         }}

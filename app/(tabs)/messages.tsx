@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, Modal, TextInput } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, Modal, TextInput, Image, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { collection, query, where, onSnapshot, orderBy, getDocs, addDoc } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, orderBy, getDocs, addDoc, doc, getDoc } from 'firebase/firestore';
 import { useAuth } from '../../context/AuthContext';
 import { db } from '../../lib/firebase';
 import { Chat, UserProfile } from '../../types';
@@ -11,6 +11,7 @@ import { colors, spacing, fontSize, borderRadius } from '../../components/ui/the
 export default function MessagesScreen() {
   const { profile, isOwner } = useAuth();
   const [chats, setChats] = useState<Chat[]>([]);
+  const [chatPhotos, setChatPhotos] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -23,20 +24,35 @@ export default function MessagesScreen() {
 
     const unsubscribe = onSnapshot(chatsQuery, (snapshot) => {
       const chatList: Chat[] = [];
-      snapshot.forEach((doc) => {
-        chatList.push({ id: doc.id, ...doc.data() } as Chat);
+      snapshot.forEach((d) => {
+        chatList.push({ id: d.id, ...d.data() } as Chat);
       });
       // Sort client-side to avoid needing a composite index
       chatList.sort((a, b) => (b.lastMessageTime || 0) - (a.lastMessageTime || 0));
       setChats(chatList);
       setLoading(false);
 
+      // Load profile photos for chat participants
+      chatList.forEach((chat) => {
+        const otherUid = chat.participants.find((p) => p !== profile?.uid);
+        if (otherUid && !chatPhotos[otherUid]) {
+          getDoc(doc(db, 'users', otherUid)).then((userDoc) => {
+            if (userDoc.exists() && userDoc.data().photoURL) {
+              setChatPhotos((prev) => ({ ...prev, [otherUid]: userDoc.data().photoURL }));
+            }
+          }).catch(() => {});
+        }
+      });
+
       // Auto-create chat with coach for clients with no chats
       if (!isOwner && chatList.length === 0) {
         autoCreateChat();
       }
     }, (error) => {
-      // Chat query failed
+      // Chat query failed — show error unless it's a permission issue during account deletion
+      if (error?.code !== 'permission-denied') {
+        Alert.alert('Chat Error', 'Failed to load conversations. Pull down to retry.');
+      }
       setLoading(false);
     });
 
@@ -82,18 +98,28 @@ export default function MessagesScreen() {
   const autoCreateChat = async () => {
     if (!profile || isOwner) return;
     try {
+      // TODO: Remove email filter after testing — revert to just role=='owner'
       const ownerQuery = query(collection(db, 'users'), where('role', '==', 'owner'));
       const ownerSnap = await getDocs(ownerQuery);
-      if (ownerSnap.empty) return;
-      const ownerDoc = ownerSnap.docs[0];
+      if (ownerSnap.empty) {
+        Alert.alert('Chat Error', 'Could not find coach account. Please contact support.');
+        return;
+      }
+      const ownerDoc = ownerSnap.docs.find(d => d.data().email === 'ryanbentley2009@live.co.uk') || ownerSnap.docs[0];
+      const ownerData = ownerDoc.data();
       await addDoc(collection(db, 'chats'), {
         participants: [ownerDoc.id, profile.uid],
         clientName: profile.name,
+        coachName: ownerData.name || 'Coach',
         lastMessage: '',
         lastMessageTime: Date.now(),
         unreadCount: 0,
       });
-    } catch { /* silent */ }
+    } catch (err: any) {
+      // Ignore permission errors during account deletion
+      if (err?.code === 'permission-denied' || err?.message?.includes('permission')) return;
+      Alert.alert('Chat Error', err?.message || 'Failed to create chat');
+    }
   };
 
   const startNewChat = async () => {
@@ -111,23 +137,25 @@ export default function MessagesScreen() {
         return;
       }
 
-      // Find owner
+      // Find owner — TODO: Remove email filter after testing
       const ownerQuery = query(collection(db, 'users'), where('role', '==', 'owner'));
       const ownerSnap = await getDocs(ownerQuery);
       if (ownerSnap.empty) return;
 
-      const ownerDoc = ownerSnap.docs[0];
+      const ownerDoc = ownerSnap.docs.find(d => d.data().email === 'ryanbentley2009@live.co.uk') || ownerSnap.docs[0];
+      const ownerData = ownerDoc.data();
       const newChat = await addDoc(collection(db, 'chats'), {
         participants: [ownerDoc.id, profile.uid],
         clientName: profile.name,
+        coachName: ownerData.name || 'Coach',
         lastMessage: '',
         lastMessageTime: Date.now(),
         unreadCount: 0,
       });
 
       router.push(`/chat/${newChat.id}`);
-    } catch (err) {
-      // handle silently
+    } catch (err: any) {
+      Alert.alert('Chat Error', err?.message || 'Failed to start chat');
     }
   };
 
@@ -170,32 +198,41 @@ export default function MessagesScreen() {
           data={chats}
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.list}
-          renderItem={({ item }) => (
+          renderItem={({ item }) => {
+            const otherUid = item.participants.find((p) => p !== profile?.uid);
+            const photo = otherUid ? chatPhotos[otherUid] : '';
+            const displayName = isOwner ? item.clientName : ((item as any).coachName || item.clientName);
+            return (
             <TouchableOpacity
               style={styles.chatItem}
               onPress={() => router.push(`/chat/${item.id}`)}
             >
-              <View style={styles.chatAvatar}>
-                <Text style={styles.chatAvatarText}>
-                  {item.clientName?.charAt(0).toUpperCase() || '?'}
-                </Text>
-              </View>
+              {photo ? (
+                <Image source={{ uri: photo }} style={styles.chatAvatarImg} />
+              ) : (
+                <View style={styles.chatAvatar}>
+                  <Text style={styles.chatAvatarText}>
+                    {displayName?.charAt(0).toUpperCase() || '?'}
+                  </Text>
+                </View>
+              )}
               <View style={styles.chatContent}>
                 <View style={styles.chatHeader}>
-                  <Text style={styles.chatName}>{item.clientName}</Text>
+                  <Text style={styles.chatName}>{displayName}</Text>
                   <Text style={styles.chatTime}>{formatTime(item.lastMessageTime)}</Text>
                 </View>
                 <Text style={styles.chatMessage} numberOfLines={1}>
                   {item.lastMessage || 'Start a conversation'}
                 </Text>
               </View>
-              {item.unreadCount > 0 && (
+              {((item as any).unreadBy?.[profile?.uid || ''] || 0) > 0 && (
                 <View style={styles.unreadBadge}>
-                  <Text style={styles.unreadText}>{item.unreadCount}</Text>
+                  <Text style={styles.unreadText}>{(item as any).unreadBy[profile!.uid]}</Text>
                 </View>
               )}
             </TouchableOpacity>
-          )}
+          );
+          }}
         />
       )}
 
@@ -282,6 +319,11 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     borderRadius: borderRadius.md,
     marginBottom: spacing.sm,
+  },
+  chatAvatarImg: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
   },
   chatAvatar: {
     width: 48,

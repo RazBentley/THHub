@@ -77,9 +77,9 @@ export const onNewMessage = functions.firestore
       await messaging.send(notification);
       console.log(`Message notification sent to ${recipientId} from ${senderName}`);
 
-      // Update unread count on the chat
+      // Update per-user unread count on the chat
       await db.collection('chats').doc(chatId).update({
-        unreadCount: admin.firestore.FieldValue.increment(1),
+        [`unreadBy.${recipientId}`]: admin.firestore.FieldValue.increment(1),
       });
     } catch (error) {
       console.error('Error sending message notification:', error);

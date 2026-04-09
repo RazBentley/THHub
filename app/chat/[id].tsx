@@ -7,9 +7,10 @@ import { useLocalSearchParams, Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { Audio } from 'expo-av';
+import * as Notifications from 'expo-notifications';
 import {
   collection, query, orderBy, onSnapshot, addDoc, doc,
-  updateDoc, getDoc, getDocs, deleteDoc,
+  updateDoc, getDoc, getDocs, deleteDoc, increment,
 } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { useAuth } from '../../context/AuthContext';
@@ -25,6 +26,8 @@ export default function ChatScreen() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState('');
   const [chatName, setChatName] = useState('Chat');
+  const [otherUid, setOtherUid] = useState('');
+  const [otherPhotoURL, setOtherPhotoURL] = useState('');
   const [uploading, setUploading] = useState(false);
   const [editingMessage, setEditingMessage] = useState<Message | null>(null);
   const [isTyping, setIsTyping] = useState(false);
@@ -43,9 +46,23 @@ export default function ChatScreen() {
 
     getDoc(doc(db, 'chats', id)).then((chatDoc) => {
       if (chatDoc.exists()) {
-        setChatName(chatDoc.data().clientName || 'Chat');
-        // Clear unread count when opening chat
-        updateDoc(doc(db, 'chats', id), { unreadCount: 0 }).catch(() => {});
+        const chatData = chatDoc.data();
+        setChatName(chatData.clientName || 'Chat');
+        // Reset only MY unread count
+        if (profile?.uid) {
+          updateDoc(doc(db, 'chats', id), { [`unreadBy.${profile.uid}`]: 0 }).catch(() => {});
+          // Clear iOS app badge
+          Notifications.setBadgeCountAsync(0).catch(() => {});
+        }
+        // Load other participant's profile photo
+        const other = (chatData.participants || []).find((p: string) => p !== profile?.uid);
+        if (other) setOtherUid(other);
+        if (other) {
+          const otherUid = other;
+          getDoc(doc(db, 'users', otherUid)).then((userDoc) => {
+            if (userDoc.exists()) setOtherPhotoURL(userDoc.data().photoURL || '');
+          }).catch(() => {});
+        }
       }
     });
 
@@ -126,14 +143,16 @@ export default function ChatScreen() {
         read: false,
       });
 
-      await updateDoc(doc(db, 'chats', id), {
+      const chatUpdate: Record<string, any> = {
         lastMessage: text,
         lastMessageTime: Date.now(),
         typingUid: null,
         typingAt: 0,
-      });
-    } catch (err) {
-      // handle silently
+      };
+      if (otherUid) chatUpdate[`unreadBy.${otherUid}`] = increment(1);
+      await updateDoc(doc(db, 'chats', id), chatUpdate);
+    } catch (err: any) {
+      Alert.alert('Message Error', err?.message || 'Failed to send message');
     }
   };
 
@@ -198,10 +217,12 @@ export default function ChatScreen() {
         read: false,
       });
 
-      await updateDoc(doc(db, 'chats', id), {
+      const photoUpdate: Record<string, any> = {
         lastMessage: 'Sent a photo',
         lastMessageTime: Date.now(),
-      });
+      };
+      if (otherUid) photoUpdate[`unreadBy.${otherUid}`] = increment(1);
+      await updateDoc(doc(db, 'chats', id), photoUpdate);
     } catch (err) {
       // Image upload failed - silent for UX
     } finally {
@@ -273,10 +294,12 @@ export default function ChatScreen() {
         read: false,
       });
 
-      await updateDoc(doc(db, 'chats', id), {
+      const voiceUpdate: Record<string, any> = {
         lastMessage: 'Voice message',
         lastMessageTime: Date.now(),
-      });
+      };
+      if (otherUid) voiceUpdate[`unreadBy.${otherUid}`] = increment(1);
+      await updateDoc(doc(db, 'chats', id), voiceUpdate);
     } catch {
       Alert.alert('Error', 'Failed to send voice message');
     } finally {
@@ -387,6 +410,15 @@ export default function ChatScreen() {
         activeOpacity={0.8}
         delayLongPress={400}
       >
+        {!isMe && (
+          otherPhotoURL ? (
+            <Image source={{ uri: otherPhotoURL }} style={styles.chatAvatar} />
+          ) : (
+            <View style={styles.chatAvatarPlaceholder}>
+              <Text style={styles.chatAvatarText}>{chatName.charAt(0).toUpperCase()}</Text>
+            </View>
+          )
+        )}
         <View style={[styles.messageBubble, isMe ? styles.myMessage : styles.theirMessage, item.imageUrl && styles.imageBubble]}>
           {item.imageUrl && (
             <Image
@@ -578,7 +610,27 @@ const styles = StyleSheet.create({
   },
   messageBubbleRow: {
     flexDirection: 'row',
+    alignItems: 'flex-end',
     marginBottom: spacing.sm,
+    gap: spacing.xs,
+  },
+  chatAvatar: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+  },
+  chatAvatarPlaceholder: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: colors.primary + '30',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  chatAvatarText: {
+    color: colors.primary,
+    fontSize: 12,
+    fontWeight: '700',
   },
   messageBubbleRowRight: {
     justifyContent: 'flex-end',

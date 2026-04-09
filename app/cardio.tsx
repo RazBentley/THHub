@@ -9,6 +9,7 @@ import { db } from '../lib/firebase';
 import { DailyCardio } from '../types';
 import { colors, spacing, fontSize, borderRadius, shadows } from '../components/ui/theme';
 import { InactiveGate } from '../components/ui/InactiveGate';
+import { getLocalDateStr } from '../lib/dates';
 
 const CARDIO_TYPES = ['Walking', 'Incline Walk', 'Running', 'Cycling', 'Swimming', 'HIIT', 'Other'];
 
@@ -21,7 +22,7 @@ export default function CardioScreen() {
   const [saved, setSaved] = useState(false);
   const [weekHistory, setWeekHistory] = useState<DailyCardio[]>([]);
 
-  const today = new Date().toISOString().split('T')[0];
+  const today = getLocalDateStr();
 
   useEffect(() => { loadData(); }, [profile]);
 
@@ -42,7 +43,7 @@ export default function CardioScreen() {
       const dates = Array.from({ length: 7 }, (_, i) => {
         const d = new Date();
         d.setDate(d.getDate() - i);
-        return d.toISOString().split('T')[0];
+        return getLocalDateStr(d);
       });
       const dayDocs = await Promise.all(
         dates.map(dateStr => getDoc(doc(db, 'users', profile.uid, 'cardioLog', dateStr)))

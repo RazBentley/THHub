@@ -9,6 +9,7 @@ import { db } from '../lib/firebase';
 import { WorkoutProgramme, WorkoutDay, WorkoutProgress, ExerciseLog } from '../types';
 import { colors, spacing, fontSize, borderRadius, shadows } from '../components/ui/theme';
 import { InactiveGate } from '../components/ui/InactiveGate';
+import { getLocalDateStr, getWeekStartStr } from '../lib/dates';
 
 export default function WorkoutsScreen() {
   const { profile } = useAuth();
@@ -17,7 +18,7 @@ export default function WorkoutsScreen() {
   const [progress, setProgress] = useState<WorkoutProgress | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const today = new Date().toISOString().split('T')[0];
+  const weekKey = getWeekStartStr(); // Workouts reset Sunday-to-Sunday
 
   useEffect(() => { loadData(); }, [profile]);
 
@@ -27,7 +28,7 @@ export default function WorkoutsScreen() {
       const progDoc = await getDoc(doc(db, 'users', profile.uid, 'workoutProgramme', 'current'));
       if (progDoc.exists()) setProgramme(progDoc.data() as WorkoutProgramme);
 
-      const progressDoc = await getDoc(doc(db, 'users', profile.uid, 'workoutProgress', today));
+      const progressDoc = await getDoc(doc(db, 'users', profile.uid, 'workoutProgress', weekKey));
       if (progressDoc.exists()) {
         const data = progressDoc.data() as WorkoutProgress;
         setProgress(data);
@@ -46,19 +47,19 @@ export default function WorkoutsScreen() {
     if (!profile || !programme) return;
     const day = programme.days[dayIndex];
     const newProgress: WorkoutProgress = {
-      date: today,
+      date: weekKey,
       dayLabel: day.label,
       exercisesCompleted: new Array(day.exercises.length).fill(false),
       exerciseLogs: new Array(day.exercises.length).fill({ weight: '', notes: '' }),
     };
     setProgress(newProgress);
     setSelectedDay(dayIndex);
-    await setDoc(doc(db, 'users', profile.uid, 'workoutProgress', today), newProgress);
+    await setDoc(doc(db, 'users', profile.uid, 'workoutProgress', weekKey), newProgress);
   };
 
   const saveProgress = async (newProgress: WorkoutProgress) => {
     setProgress(newProgress);
-    if (profile) await setDoc(doc(db, 'users', profile.uid, 'workoutProgress', today), newProgress);
+    if (profile) await setDoc(doc(db, 'users', profile.uid, 'workoutProgress', weekKey), newProgress);
   };
 
   const toggleExercise = async (exerciseIndex: number) => {
